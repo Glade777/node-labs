@@ -1,11 +1,12 @@
 class Apartment {
-  constructor(apartmentId, title, price, params, description, ownerId) {
+  constructor(apartmentId, title, price, params, description, ownerId, status) {
     this.apartmentId = apartmentId;
     this.title = title;
     this.price = price;
     this.params = params;
     this.description = description;
     this.ownerId = ownerId;
+    this.status = status;
   }
 
   #validatePrice(value) {
