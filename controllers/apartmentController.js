@@ -1,6 +1,7 @@
 const ApartmentService = require("../services/ApartmentService");
 const ApartmentDescriptionService = require("../services/descriptionService");
 const ApartmentParamsService = require("../services/paramsService");
+const userService = require("../services/userService");
 
 class ApartmentController {
   async getApartments(req, res) {
@@ -34,6 +35,7 @@ class ApartmentController {
     const description = await ApartmentDescriptionService.getDescription();
     const params = await ApartmentParamsService.getParams();
     const apartment = await ApartmentService.getApartmentById(parseId);
+
     res.render("apartment", {
       apartment: apartment,
       description: description,

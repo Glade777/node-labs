@@ -4,6 +4,7 @@ const apartmentRepository = require("./apartmentRepository.js");
 const apartmentParamsRepository = require("./apartmentParamsRepository.js");
 const apartmentDescriptionRepository = require("./apartmentDescriptionRepository.js");
 const apartmentRepositoryDb = require("../repo/ApartmentRepositoryDb.js");
+const userRepository = require("../repo/userRepository.js");
 
 class Repository {
   constructor(db) {
@@ -12,6 +13,7 @@ class Repository {
     this.params = new apartmentParamsRepository(db);
     this.description = new apartmentDescriptionRepository(db);
     this.apartments = new apartmentRepositoryDb(db);
+    this.user = new userRepository(db);
   }
 }
 

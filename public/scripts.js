@@ -58,8 +58,9 @@ document
   .querySelectorAll("product-list")
   .addEventListener("click", async () => {
     const target = target.closest(".productClicked");
-    const apartmentId = target.dataset.id;
-    const response = await fetch(`/apartment/${apartmentId}`, {
+    const apartmentId = target.dataset.Id;
+    let URL = `/apartment/${apartmentId}`;
+    const response = await fetch(URL, {
       headers: { Accept: "application/json" },
     });
     const data = await response.json();

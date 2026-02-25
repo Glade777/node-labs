@@ -1,6 +1,7 @@
 const apartment = require("../models/Apartment");
 const apartmentParams = require("../models/apartmentParams");
 const apartmentDescription = require("../models/ApartmentDescription");
+const user = require("../models/user");
 
 class apartmentRepository {
   constructor(db) {
@@ -45,20 +46,31 @@ class apartmentRepository {
   async getById(Id) {
     console.log("repo:", Id);
     const query = `
-        SELECT 
-            a.apartment_id, a.title, a.price, a.owner_id, a.status,
-            p.rooms, p.area, p.floor, p.address,
-            d.full_text, d.features
-        FROM apartments a
-        LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
-        LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
-        WHERE a.apartment_id = $1;
-    `;
+    SELECT 
+        a.*, 
+        u.user_id, u.name as user_name, u.balance, u.contacts,
+        p.rooms, p.area, p.floor, p.address,
+        d.full_text, d.features
+    FROM apartments a
+    LEFT JOIN users u ON a.owner_id = u.user_id
+    LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
+    LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
+    WHERE a.apartment_id = $1;
+`;
 
     const parseId = parseInt(Id);
 
     const res = await this.db.query(query, [parseId]);
     const row = res.rows[0];
+
+    const ownerData = {
+      user: {
+        id: row.user_id,
+        name: row.user_name,
+        balance: row.balance,
+        contacts: row.contacts,
+      },
+    };
 
     const params = new apartmentParams(
       row.rooms,
@@ -68,14 +80,13 @@ class apartmentRepository {
     );
 
     const description = new apartmentDescription(row.full_text, row.features);
-    console.log("desc:", description);
     return new apartment(
       row.apartment_Id,
       row.title,
       parseFloat(row.price),
       params,
       description,
-      row.owner_id,
+      ownerData,
       row.status,
     );
   }

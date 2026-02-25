@@ -22,7 +22,6 @@ class ApartmentService {
   }
 
   async getApartmentById(parseid) {
-    console.log("serv:", parseid);
     const apartmentId = await repo.apartments.getById(parseid);
 
     return apartmentId;
