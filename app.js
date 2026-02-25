@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const router = require("./routers/router");
 const path = require("path");
+const db = require("./db/db");
+
+app.set("db", db);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));

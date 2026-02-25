@@ -1,0 +1,133 @@
+const apartment = require("../models/Apartment");
+const apartmentParams = require("../models/apartmentParams");
+const apartmentDescription = require("../models/ApartmentDescription");
+
+class apartmentRepository {
+  constructor(db) {
+    this.db = db;
+  }
+
+  async getAll() {
+    const query = `
+      SELECT 
+        a.apartment_id, a.title, a.price, a.owner_id, a.status,
+        p.rooms, p.area, p.floor, p.address,
+        d.full_text, d.features
+      FROM apartments a
+      LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
+      LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
+      ORDER BY a.apartment_id ASC;
+    `;
+
+    const res = await this.db.query(query);
+    return res.rows.map((row) => {
+      const params = new apartmentParams(
+        row.rooms,
+        parseFloat(row.area),
+        row.floor,
+        row.address,
+      );
+
+      const description = new apartmentDescription(row.full_text, row.features);
+
+      return new apartment(
+        row.apartment_id,
+        row.title,
+        parseFloat(row.price),
+        params,
+        description,
+        row.owner_id,
+        row.status,
+      );
+    });
+  }
+
+  async getById(Id) {
+    console.log("repo:", Id);
+    const query = `
+        SELECT 
+            a.apartment_id, a.title, a.price, a.owner_id, a.status,
+            p.rooms, p.area, p.floor, p.address,
+            d.full_text, d.features
+        FROM apartments a
+        LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
+        LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
+        WHERE a.apartment_id = $1;
+    `;
+
+    const parseId = parseInt(Id);
+
+    const res = await this.db.query(query, [parseId]);
+    const row = res.rows[0];
+
+    const params = new apartmentParams(
+      row.rooms,
+      parseFloat(row.area),
+      row.floor,
+      row.address,
+    );
+
+    const description = new apartmentDescription(row.full_text, row.features);
+    console.log("desc:", description);
+    return new apartment(
+      row.apartment_Id,
+      row.title,
+      parseFloat(row.price),
+      params,
+      description,
+      row.owner_id,
+      row.status,
+    );
+  }
+
+  // Передаємо екземпляри класів Apartment та User (покупець)
+  async executePurchaseTransaction(apartmentInstance, buyerInstance) {
+    const client = await this.db.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      // 1. Знімаємо гроші у покупця (використовуємо дані з екземпляра buyerInstance)
+      const buyerRes = await client.query(
+        "UPDATE users SET balance = balance - $1 WHERE user_id = $2 AND balance >= $1",
+        [apartmentInstance.price, buyerInstance.userId],
+      );
+
+      if (buyerRes.rowCount === 0) {
+        throw new Error(
+          `Покупець ${buyerInstance.name} має недостатньо коштів`,
+        );
+      }
+
+      // 2. Нараховуємо продавцю (використовуємо ownerId з екземпляра apartmentInstance)
+      await client.query(
+        "UPDATE users SET balance = balance + $1 WHERE user_id = $2",
+        [apartmentInstance.price, apartmentInstance.ownerId],
+      );
+
+      // 3. Міняємо статус та власника квартири в БД
+      await client.query(
+        "UPDATE apartments SET owner_id = $1, status = 'sold' WHERE apartment_id = $2",
+        [buyerInstance.userId, apartmentInstance.apartmentId],
+      );
+
+      await client.query("COMMIT");
+
+      buyerInstance.balance -= apartmentInstance.price;
+      apartmentInstance.status = "sold";
+      apartmentInstance.ownerId = buyerInstance.userId;
+
+      return {
+        success: true,
+        updatedApartment: apartmentInstance,
+        updatedBuyer: buyerInstance,
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+}
+module.exports = apartmentRepository;

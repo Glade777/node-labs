@@ -3,7 +3,7 @@ const repo = require("../repo/repository");
 class ApartmentService {
   // асинхронна
   async getApartmentSorted(order, rooms) {
-    let apartment = await repo.apartment.getAll();
+    let apartment = await repo.apartments.getAll();
 
     if (rooms) {
       const roomCount = parseInt(rooms);
@@ -22,7 +22,9 @@ class ApartmentService {
   }
 
   async getApartmentById(parseid) {
-    const apartmentId = await repo.apartment.getById(parseid);
+    console.log("serv:", parseid);
+    const apartmentId = await repo.apartments.getById(parseid);
+
     return apartmentId;
   }
 }

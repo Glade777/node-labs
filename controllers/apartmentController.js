@@ -29,6 +29,7 @@ class ApartmentController {
 
   async getApartmentById(req, res) {
     const Id = req.params.apartmentId;
+    console.log("cont:", Id);
     const parseId = parseInt(Id);
     const description = await ApartmentDescriptionService.getDescription();
     const params = await ApartmentParamsService.getParams();
