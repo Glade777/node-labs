@@ -1,0 +1,32 @@
+<head><link rel="stylesheet" href="/style.css"></head>
+<body>
+
+     <% 
+  const labels = {
+    rooms: "Кімнат",
+    area: "Площа (м²)",
+    floor: "Поверх",
+    address: "Адреса"
+  };
+%>
+    <div id="product-list" >
+        <ul>
+          <li class="card">
+              <strong><%= apartment.title %></strong>
+              <strong class="price">Ціна: <%= apartment._price %> грн</strong>
+              <p>Опис: <%= apartment.description.fullText %></p>
+              <ul>
+                <%for(let key in apartment.params){
+                  %>
+                  <li>
+                    <strong><%=labels[key]%>:</strong><%=apartment.params[key]%>
+                  </li>
+                  <%
+                }%>
+              </ul>
+            </li>
+        </ul>
+      </div>
+
+    <script src="/scripts.js"></script>
+</body>

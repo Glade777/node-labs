@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Список квартир</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+   <% 
+  const labels = {
+    rooms: "Кімнат",
+    area: "Площа (м²)",
+    floor: "Поверх",
+    address: "Адреса"
+  };
+%>
+  
+  <h1>Каталог квартир</h1>
+
+  <div class="page-wrapper">
+
+
+    <main class="main-content">
+      <div class="controls">
+        <label for="sortSelect">Сортувати:</label>
+        <select id="sortSelect">
+          <option value="asc">Від дешевих до дорогих</option>
+          <option value="desc">Від дорогих до дешевих</option>
+        </select>
+        <label for="sortRooms">Кільскість кімнат:</label>
+            <input id="sortRooms"></input>
+            <button id="applyFilters">Застосувати</button>
+      </div>
+
+      <div id="product-list" >
+        <ul>
+          <% apartments.forEach((apart) => { %>
+            <a href="/apartment/<%=apart.apartmentId%>" class="productClicked" data-id="<%=apart.apartmentId%>"><li class="card">
+              <strong><%= apart.title %></strong>
+              <strong class="price">Ціна: <%= apart._price %> грн</strong>
+              <p>Опис: <%= apart.description.fullText %></p>
+              <ul>
+                <%for(let key in apart.params){
+                  %>
+                  <li>
+                    <strong><%=labels[key]%>:</strong><%=apart.params[key]%>
+                  </li>
+                  <%
+                }%>
+              </ul>
+            </li></a>
+          <% }) %>
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <%- include('footer') %>
+
+
+
+  <script src="/scripts.js"></script>
+</body>
+</html>

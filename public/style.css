@@ -1,0 +1,136 @@
+/* Загальні налаштування сторінки */
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f7f6;
+  margin: 0;
+  padding: 20px;
+  color: #2d3436;
+}
+
+h1 {
+  text-align: center;
+  color: #2d3436;
+  margin-bottom: 40px;
+}
+
+.page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Контролі (Сортування) */
+.controls {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+select {
+  padding: 8px 12px;
+  border: 1px solid #dfe6e9;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+/* Сітка карток */
+#product-list ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+/* Картка квартири */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: #f05a28;
+  cursor: pointer;
+}
+
+.card strong {
+  display: block;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+  color: #2d3436;
+}
+
+/* Ціна */
+.price {
+  background: #fff5f2;
+  color: #f05a28 !important;
+  font-size: 1.3em !important;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 15px !important;
+}
+
+/* Опис */
+.card p {
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: #636e72;
+  margin-bottom: 20px;
+}
+
+/* Внутрішній список параметрів (params) */
+.card ul {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr; /* два стовпчики */
+  gap: 10px;
+  padding: 12px !important;
+  background: #f9f9f9;
+  border-radius: 8px;
+  list-style: none !important;
+}
+
+.card ul li {
+  font-size: 0.85em;
+  color: #2d3436;
+  border-bottom: none !important;
+  padding: 0 !important;
+}
+
+.card ul li strong {
+  display: inline !important;
+  font-size: 1em;
+  color: #b2bec3;
+  text-transform: capitalize; /* Робить першу літеру великою */
+  margin-right: 5px;
+}
+
+/* Футер */
+footer {
+  margin-top: 60px;
+  text-align: center;
+  padding: 20px;
+  border-top: 1px solid #eee;
+  color: #b2bec3;
+}
+
+a {
+  text-decoration: none;
+}
