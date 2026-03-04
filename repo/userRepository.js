@@ -1,7 +1,7 @@
 const user = require("../models/user");
 
 class userRepository {
-  costructor(db) {
+  constructor(db) {
     this.db = db;
   }
 
@@ -20,6 +20,46 @@ class userRepository {
 
     const row = res.rows[0];
     return new user(row.userId, row.name, row.contacts, row.balance);
+  }
+
+  async createUser(User) {
+    const query = `
+      INSERT INTO users (name, balance, contacts, password_hash)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+
+    const values = [User.name, User.balance, User.contacts, User.password];
+
+    const res = await this.db.query(query, values);
+    const row = res.rows[0];
+    return new user(
+      row.user_id,
+      row.name,
+      row.balance || 0,
+      row.contacts || [],
+      row.password_hash,
+    );
+  }
+
+  async deleteUser(Id) {
+    const query = `DELETE FROM users WHERE user_id = 1$`;
+    const res = this.db.query(query, [Id]);
+    return res.rowCount > 0;
+  }
+
+  async loginUser(name, hash) {
+    const query = `SELECT * FROM users WHERE name = 1$ AND password_hash = 2$`;
+    const res = this.db.query(query, [name, hash]);
+    const row = res.rows[0];
+
+    return new user(
+      row.userId,
+      row.name,
+      row.contacts,
+      row.balance,
+      row.password_hash,
+    );
   }
 }
 
