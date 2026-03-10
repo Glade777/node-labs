@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const router = require("./routers/router");
+const errorHandler = require("./middlewares/errorHandler");
 const path = require("path");
 
 app.use(express.json());
@@ -13,6 +15,8 @@ const PORT = 5050;
 
 app.use("/", router);
 
+app.use(errorHandler);
+
 app.listen(PORT, () => {
-  console.log(`server is running on ${PORT}`);
+    console.log(`server is running on ${PORT}`);
 });

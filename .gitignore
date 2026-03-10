@@ -1,0 +1,13 @@
+#dependencies
+node_modules/
+
+#environment
+.env
+
+# macOS archive artifacts
+.DS_Store
+__MACOSX/
+
+# IDE
+.idea/
+.vscode/
