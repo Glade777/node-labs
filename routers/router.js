@@ -1,13 +1,17 @@
-const ApartmentController = require("../controllers/apartmentController");
 const express = require("express");
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  ApartmentController.getApartments(req, res);
-});
+const ApartmentController = require("../controllers/apartmentController");
+const ApartmentFileController = require("../controllers/apartmentFileController");
 
-router.get("/apartment/:apartmentId", (req, res) => {
-  ApartmentController.getApartmentById(req, res);
-});
+router.get("/", ApartmentController.getApartments);
+
+router.get("/apartment/:apartmentId", ApartmentController.getApartmentById);
+
+router.get("/file/apartments/sync", ApartmentFileController.getAllSync);
+
+router.get("/file/apartments", ApartmentFileController.getAll);
+
+router.get("/file/apartments/async", ApartmentFileController.getAllAsync);
 
 module.exports = router;
