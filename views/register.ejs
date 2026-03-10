@@ -38,7 +38,8 @@
         });
 
         if (response.ok) {
-          window.location.href = "/";
+          const newUser = await response.json();
+          window.location.href = `/user/${newUser.userId}`;
         }
       });
     </script>

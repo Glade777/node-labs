@@ -1,0 +1,9 @@
+<div class="user-actions">
+    <% if (typeof user !== 'undefined' && user) { %>
+        <button id="goToProfile" data-userid="<%= user.userId %>" class="btn-profile">
+            Мій профіль
+        </button>
+    <% } else { %>
+        <a href="/login" class="btn-login">Увійти</a>
+    <% } %>
+</div>

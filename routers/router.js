@@ -24,4 +24,12 @@ router.post("/login/register", (req, res) => {
   userController.createUser(req, res);
 });
 
+router.get("/user/:userId", (req, res) => {
+  userController.getUserById(req, res);
+});
+
+router.patch("/user/:userId", (req, res) => {
+  userController.updateUserById(req, res);
+});
+
 module.exports = router;

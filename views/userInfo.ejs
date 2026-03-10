@@ -1,13 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <div>
-      <ul></ul>
-    </div>
-  </body>
-</html>
+<% if (currentUser && currentUser.id === user.userId) { %>
+<h1>Профіль користувача</h1>
+<div class="user-card">
+  <p><strong>Ім'я:</strong> <span id="userName"><%= user.name %></span></p>
+  <p>
+    <strong>Контакти:</strong>
+    <span id="userContacts"><%= user.contacts %></span>
+  </p>
+  <p><strong>Баланс:</strong> <%= user.balance %> грн</p>
+
+  <button class="editBtn" id="editBtn" data-id="<%= user.userId %>">
+    Edit
+  </button>
+  <button id="saveBtn" style="display: none" data-id="<%= user.userId %>">
+    Save
+  </button>
+
+</div>
+  <% } %>
+<body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const editBtn = document.getElementById("editBtn");
+      const saveBtn = document.getElementById("saveBtn");
+
+      const nameSpan = document.getElementById("userName");
+      const contactsSpan = document.getElementById("userContacts");
+
+      editBtn.addEventListener("click", () => {
+        const nameInput = `<input type="text" id="nameInput" value="${nameSpan.innerText}">`;
+        const contactsInput = `<input type="text" id="contactsInput" value="${contactsSpan.innerText}">`;
+
+        nameSpan.innerHTML = nameInput;
+        contactsSpan.innerHTML = contactsInput;
+
+        editBtn.style.display = "none";
+        saveBtn.style.display = "inline-block";
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        const userId = saveBtn.dataset.id;
+        const newName = document.getElementById("nameInput").value;
+        const newContacts = document.getElementById("contactsInput").value;
+
+        const response = await fetch(`/user/${userId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newName,
+            contacts: newContacts,
+          }),
+        });
+
+        if (response.ok) {
+          document.getElementById("userName").innerText = newName;
+          document.getElementById("userContacts").innerText = newContacts;
+          // Повертаємо кнопки у початковий стан
+          editBtn.style.display = "inline-block";
+          saveBtn.style.display = "none";
+        }
+      });
+    });
+  </script>
+</body>
+<a href="/">Назад до каталогу</a>

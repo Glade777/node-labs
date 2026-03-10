@@ -21,6 +21,7 @@ class ApartmentController {
         apartments: apartments,
         description: description,
         params: params,
+        currentUser: req.session.newUser,
       });
     } catch (error) {
       console.error(error);

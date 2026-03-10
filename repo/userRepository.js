@@ -15,11 +15,11 @@ class userRepository {
   }
 
   async getUserById(Id) {
-    const query = `SELECT user_id FROM users WHERE user_id = 1$`;
+    const query = `SELECT * FROM users WHERE user_id = $1`;
     const res = await this.db.query(query, [Id]);
 
     const row = res.rows[0];
-    return new user(row.userId, row.name, row.contacts, row.balance);
+    return new user(row.user_id, row.name, row.contacts, row.balance);
   }
 
   async createUser(User) {
@@ -59,6 +59,34 @@ class userRepository {
       row.contacts,
       row.balance,
       row.password_hash,
+    );
+  }
+
+  async updateUserById(Id, newUser) {
+    const query = `
+      UPDATE users 
+      SET 
+        name = COALESCE($1, name),
+        contacts = COALESCE($2, contacts),
+        balance = COALESCE($3, balance)
+      WHERE user_id = $4
+      RETURNING *;
+    `;
+    const values = [
+      newUser.name || null,
+      newUser.contacts || null,
+      newUser.balance || null,
+      Id,
+    ];
+
+    const res = await this.db.query(query, values);
+    const row = res.rows[0];
+
+    return new user(
+      row.user_id,
+      row.name,
+      row.contacts || "",
+      row.balance || 0,
     );
   }
 }

@@ -13,6 +13,21 @@ class userService {
     return await repo.user.createUser(newUser);
   }
 
+  async getUserById(Id) {
+    const userId = await repo.user.getUserById(Id);
+    return userId;
+  }
+
+  async updateUserById(Id, updateUser) {
+    const { name, contacts } = updateUser;
+    const newUser = {
+      name: name,
+      contacts: contacts,
+    };
+    const updatedUser = await repo.user.updateUserById(Id, newUser);
+    return updatedUser;
+  }
+
   async loginUser(name, password) {
     const hash = await hash.comparePassword(password);
     if (!hash) return null;
