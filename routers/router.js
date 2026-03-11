@@ -8,6 +8,14 @@ router.get("/", (req, res) => {
   ApartmentController.getApartments(req, res);
 });
 
+router.get("/apartment/create", (req, res) => {
+  ApartmentController.getCreateApartment(req, res);
+});
+
+router.post("/apartment/create", (req, res) => {
+  ApartmentController.createApartment(req, res);
+});
+
 router.get("/apartment/:apartmentId", (req, res) => {
   ApartmentController.getApartmentById(req, res);
 });

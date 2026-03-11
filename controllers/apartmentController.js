@@ -63,6 +63,26 @@ class ApartmentController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async getCreateApartment(req, res) {
+    if (!req.session.newUser) {
+      return res.redirect("/login");
+    }
+    res.render("create", { currentUser: req.session.newUser });
+  }
+
+  async createApartment(req, res) {
+    try {
+      if (!req.session.newUser) {
+        return res.status(401).json({ error: "Не авторизований" });
+      }
+      const ownerId = req.session.newUser.id;
+      const result = await ApartmentService.createApartment(req.body, ownerId);
+      res.status(201).json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ApartmentController();

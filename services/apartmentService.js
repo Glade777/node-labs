@@ -27,6 +27,25 @@ class ApartmentService {
     return apartmentId;
   }
 
+  async createApartment(data, ownerId) {
+    const { title, price, rooms, area, floor, address, fullText } = data;
+
+    if (!title || !price) {
+      throw new Error("Назва та ціна обов'язкові");
+    }
+
+    return await repo.apartments.createApartment({
+      title,
+      price,
+      rooms,
+      area,
+      floor,
+      address,
+      fullText,
+      ownerId,
+    });
+  }
+
   async purchaseApartment(apartmentId, buyerId) {
     // 1. Отримуємо дані через репозиторій
     const apartmentInstance = await repo.apartments.getById(apartmentId);

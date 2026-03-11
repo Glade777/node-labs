@@ -17,6 +17,11 @@
     address: "Адреса"
   };
 %>
+<% if (locals.currentUser) { %>
+  <a href="/apartment/create">
+    <button class="createBtn">+ Додати оголошення</button>
+  </a>
+<% } %>
   
   <h1>Каталог квартир</h1>
 

@@ -138,5 +138,42 @@ class apartmentRepository {
       client.release();
     }
   }
+
+  async createApartment(data) {
+    const client = await this.db.connect();
+    try {
+      await client.query("BEGIN");
+
+      // 1. створюємо квартиру
+      const aptRes = await client.query(
+        `INSERT INTO apartments (title, price, owner_id, status)
+       VALUES ($1, $2, $3, 'active') RETURNING *`,
+        [data.title, data.price, data.ownerId],
+      );
+      const apt = aptRes.rows[0];
+
+      // 2. створюємо параметри
+      await client.query(
+        `INSERT INTO apartment_params (apartment_id, rooms, area, floor, address)
+       VALUES ($1, $2, $3, $4, $5)`,
+        [apt.apartment_id, data.rooms, data.area, data.floor, data.address],
+      );
+
+      // 3. створюємо опис
+      await client.query(
+        `INSERT INTO apartment_descriptions (apartment_id, full_text, features)
+       VALUES ($1, $2, $3)`,
+        [apt.apartment_id, data.fullText, []],
+      );
+
+      await client.query("COMMIT");
+      return { apartmentId: apt.apartment_id };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 module.exports = apartmentRepository;
