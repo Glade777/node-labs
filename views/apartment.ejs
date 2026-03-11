@@ -74,6 +74,21 @@
   </button>
 <% } %>
 
+<% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
+  <div class="edit-form">
+    <h3>Редагувати оголошення</h3>
+    <input type="text" id="editTitle" placeholder="Назва" value="<%= apartment.title %>" />
+    <input type="number" id="editPrice" placeholder="Ціна" value="<%= apartment.price %>" />
+    <input type="number" id="editRooms" placeholder="Кімнат" value="<%= apartment.params.rooms %>" />
+    <input type="number" id="editArea" placeholder="Площа" value="<%= apartment.params.area %>" />
+    <input type="number" id="editFloor" placeholder="Поверх" value="<%= apartment.params.floor %>" />
+    <input type="text" id="editAddress" placeholder="Адреса" value="<%= apartment.params.address %>" />
+    <textarea id="editFullText"><%= apartment.description.fullText %></textarea>
+    <button id="updateBtn" data-apartment-id="<%= apartment.apartmentId %>">Зберегти</button>
+    <div id="update-message"></div>
+  </div>
+<% } %>
+
   <%- include('footer') %>
   <script src="/scripts.js"></script>
 </body>

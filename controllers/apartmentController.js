@@ -99,6 +99,26 @@ class ApartmentController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async updateApartment(req, res) {
+    try {
+      const apartmentId = parseInt(req.params.apartmentId);
+      const userId = req.session.newUser?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Не авторизований" });
+      }
+
+      const result = await ApartmentService.updateApartment(
+        apartmentId,
+        userId,
+        req.body,
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ApartmentController();

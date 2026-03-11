@@ -204,5 +204,48 @@ class apartmentRepository {
       client.release();
     }
   }
+
+  async updateApartment(apartmentId, data) {
+    const client = await this.db.connect();
+    try {
+      await client.query("BEGIN");
+
+      await client.query(
+        `UPDATE apartments 
+       SET title = COALESCE($1, title), price = COALESCE($2, price)
+       WHERE apartment_id = $3`,
+        [data.title || null, data.price || null, apartmentId],
+      );
+
+      await client.query(
+        `UPDATE apartment_params 
+       SET rooms = COALESCE($1, rooms), area = COALESCE($2, area),
+           floor = COALESCE($3, floor), address = COALESCE($4, address)
+       WHERE apartment_id = $5`,
+        [
+          data.rooms || null,
+          data.area || null,
+          data.floor || null,
+          data.address || null,
+          apartmentId,
+        ],
+      );
+
+      await client.query(
+        `UPDATE apartment_descriptions 
+       SET full_text = COALESCE($1, full_text)
+       WHERE apartment_id = $2`,
+        [data.fullText || null, apartmentId],
+      );
+
+      await client.query("COMMIT");
+      return { success: true, apartmentId };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 module.exports = apartmentRepository;

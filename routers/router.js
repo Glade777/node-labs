@@ -20,6 +20,10 @@ router.delete("/apartment/:apartmentId", (req, res) => {
   ApartmentController.deleteApartment(req, res);
 });
 
+router.patch("/apartment/:apartmentId", (req, res) => {
+  ApartmentController.updateApartment(req, res);
+});
+
 router.get("/apartment/:apartmentId", (req, res) => {
   ApartmentController.getApartmentById(req, res);
 });

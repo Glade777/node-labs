@@ -119,3 +119,39 @@ if (deleteBtn) {
     }
   });
 }
+
+const updateBtn = document.getElementById("updateBtn");
+
+if (updateBtn) {
+  updateBtn.addEventListener("click", async () => {
+    const apartmentId = updateBtn.dataset.apartmentId;
+
+    const body = {
+      title: document.getElementById("editTitle").value,
+      price: parseFloat(document.getElementById("editPrice").value),
+      rooms: parseInt(document.getElementById("editRooms").value),
+      area: parseFloat(document.getElementById("editArea").value),
+      floor: parseInt(document.getElementById("editFloor").value),
+      address: document.getElementById("editAddress").value,
+      fullText: document.getElementById("editFullText").value,
+    };
+
+    const response = await fetch(`/apartment/${apartmentId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    const messageDiv = document.getElementById("update-message");
+
+    if (response.ok) {
+      messageDiv.textContent = "Збережено!";
+      messageDiv.style.color = "green";
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      messageDiv.textContent = data.error;
+      messageDiv.style.color = "red";
+    }
+  });
+}
