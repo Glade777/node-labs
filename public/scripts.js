@@ -11,54 +11,71 @@ function renderApartments(parameters) {
     .map((apart) => {
       const paramsList = Object.keys(apart.params)
         .map(
-          (key) => `
-        <li>
-        <strong>${labels[key]}</strong>${apart.params[key]}
-        </li>`,
+          (key) =>
+            `<li><strong>${labels[key]}</strong>${apart.params[key]}</li>`,
         )
         .join("");
 
       return `
-      <a href="/apartment/${apart.apartmentId}" class="productClicked" data-id="${apart.apartmentId}"><li class="card">
+      <a href="/apartment/${apart.apartmentId}" class="productClicked" data-id="${apart.apartmentId}">
+        <li class="card">
           <strong>${apart.title}</strong>
           <strong class="price">Ціна: ${apart._price} грн</strong>
           <p>Опис: ${apart.description.fullText || ""}</p>
-          <ul>
-            ${paramsList}
-          </ul>
-        </li></a>`;
+          <ul>${paramsList}</ul>
+        </li>
+      </a>`;
     })
     .join("")}</ul>`;
 }
 
-async function updateUI() {
+function renderPagination(pagination) {
+  const container = document.getElementById("pagination");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (pagination.page > 1) {
+    const btn = document.createElement("button");
+    btn.textContent = "Назад";
+    btn.onclick = () => updateUI(pagination.page - 1);
+    container.appendChild(btn);
+  }
+
+  const info = document.createElement("span");
+  info.textContent = ` Сторінка ${pagination.page} з ${pagination.totalPages} `;
+  container.appendChild(info);
+
+  if (pagination.page < pagination.totalPages) {
+    const btn = document.createElement("button");
+    btn.textContent = "Вперед";
+    btn.onclick = () => updateUI(pagination.page + 1);
+    container.appendChild(btn);
+  }
+}
+
+async function updateUI(page = 1) {
   const sort = document.getElementById("sortSelect").value;
   const count = document.getElementById("sortRooms").value;
 
-  let url = `/?rooms=${count}&sort=${sort}`;
-  if (!count) {
-    url = `/?sort=${sort}`;
-  }
+  let url = `/?sort=${sort}&page=${page}&limit=5`;
+  if (count) url += `&rooms=${count}`;
 
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
   });
+  const result = await response.json();
 
-  const data = await response.json();
-  renderApartments(data);
+  renderApartments(result.data);
+  renderPagination(result.pagination);
 }
 
 // головна сторінка
 const sortSelect = document.getElementById("sortSelect");
 const applyFilters = document.getElementById("applyFilters");
 
-if (sortSelect) {
-  sortSelect.addEventListener("change", updateUI);
-}
-
-if (applyFilters) {
-  applyFilters.addEventListener("click", updateUI);
-}
+if (sortSelect) sortSelect.addEventListener("change", () => updateUI(1));
+if (applyFilters) applyFilters.addEventListener("click", () => updateUI(1));
 
 // сторінка квартири
 const purchaseBtn = document.getElementById("purchaseBtn");
@@ -85,6 +102,7 @@ if (purchaseBtn) {
         messageDiv.textContent = "Квартиру успішно придбано!";
         messageDiv.style.color = "green";
         purchaseBtn.textContent = "Продано";
+        setTimeout(() => window.location.reload(), 1500);
       } else {
         messageDiv.textContent = `${data.error}`;
         messageDiv.style.color = "red";
@@ -99,12 +117,12 @@ if (purchaseBtn) {
     }
   });
 }
+
 const deleteBtn = document.getElementById("deleteBtn");
 
 if (deleteBtn) {
   deleteBtn.addEventListener("click", async () => {
     const apartmentId = deleteBtn.dataset.apartmentId;
-
     if (!confirm("Ви впевнені що хочете видалити оголошення?")) return;
 
     const response = await fetch(`/apartment/${apartmentId}`, {
@@ -154,4 +172,8 @@ if (updateBtn) {
       messageDiv.style.color = "red";
     }
   });
+}
+if (sortSelect) {
+  sortSelect.addEventListener("change", () => updateUI(1));
+  updateUI(1); // ← додайте це
 }

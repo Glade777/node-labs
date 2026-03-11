@@ -8,19 +8,24 @@ class ApartmentController {
     try {
       const sort = req.query.sort;
       const rooms = req.query.rooms;
-      const apartments = await ApartmentService.getApartmentSorted(sort, rooms);
-      const description = await ApartmentDescriptionService.getDescription();
-      const params = await ApartmentParamsService.getParams();
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+
+      const result = await ApartmentService.getApartmentSorted(
+        sort,
+        rooms,
+        page,
+        limit,
+      );
 
       const isFetch = req.headers.accept && req.headers.accept.includes("json");
       if (isFetch) {
-        return res.json(apartments);
+        return res.status(200).json(result);
       }
 
       res.render("index", {
-        apartments: apartments,
-        description: description,
-        params: params,
+        apartments: result.data,
+        pagination: result.pagination,
         currentUser: req.session.newUser,
       });
     } catch (error) {

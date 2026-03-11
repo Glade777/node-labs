@@ -2,7 +2,7 @@ const repo = require("../repo/repository");
 
 class ApartmentService {
   // асинхронна
-  async getApartmentSorted(order, rooms) {
+  async getApartmentSorted(order, rooms, page = 1, limit = 5) {
     let apartment = await repo.apartments.getAll();
 
     if (rooms) {
@@ -12,13 +12,21 @@ class ApartmentService {
       });
     }
 
-    return apartment.sort((a, b) => {
+    apartment = apartment.sort((a, b) => {
       if (order === "asc") {
         return a.price - b.price;
       } else if (order === "desc") {
         return b.price - a.price;
       } else return 0;
     });
+
+    //пагінація
+
+    const total = apartment.length;
+    const totalPages = Math.ceil(total / limit);
+    const offset = (page - 1) * limit; //скільки елементів буде пропущено на наст сторінці
+    const data = apartment.slice(offset, offset + limit);
+    return { data, pagination: { page, limit, total, totalPages } };
   }
 
   async getApartmentById(parseid) {
