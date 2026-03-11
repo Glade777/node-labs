@@ -29,10 +29,14 @@ class userService {
   }
 
   async loginUser(name, password) {
-    const hash = await hash.comparePassword(password);
-    if (!hash) return null;
+    console.log("loginUser викликано", name, password);
+    const user = await repo.user.getUserByName(name);
+    if (!user) return null;
 
-    return await hash.user.loginUser(name, hash);
+    const isValid = await hash.comparePassword(password, user.password_hash);
+    if (!isValid) return null;
+
+    return user;
   }
 }
 

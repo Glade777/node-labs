@@ -12,6 +12,10 @@ router.get("/apartment/:apartmentId", (req, res) => {
   ApartmentController.getApartmentById(req, res);
 });
 
+router.post("/apartment/:apartmentId/purchase", (req, res) => {
+  ApartmentController.purchaseApartment(req, res);
+});
+
 router.get("/login", (req, res) => {
   loginController.getLogin(req, res);
 });
@@ -22,6 +26,14 @@ router.get("/login/register", (req, res) => {
 
 router.post("/login/register", (req, res) => {
   userController.createUser(req, res);
+});
+
+router.post("/auth/login", (req, res) => {
+  loginController.postLogin(req, res);
+});
+
+router.get("/auth/login", (req, res) => {
+  res.redirect("/login");
 });
 
 router.get("/user/:userId", (req, res) => {

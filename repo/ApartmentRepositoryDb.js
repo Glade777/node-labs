@@ -56,21 +56,11 @@ class apartmentRepository {
     LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
     LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
     WHERE a.apartment_id = $1;
-`;
+  `;
 
     const parseId = parseInt(Id);
-
     const res = await this.db.query(query, [parseId]);
     const row = res.rows[0];
-
-    const ownerData = {
-      user: {
-        id: row.user_id,
-        name: row.user_name,
-        balance: row.balance,
-        contacts: row.contacts,
-      },
-    };
 
     const params = new apartmentParams(
       row.rooms,
@@ -80,15 +70,23 @@ class apartmentRepository {
     );
 
     const description = new apartmentDescription(row.full_text, row.features);
-    return new apartment(
-      row.apartment_Id,
+
+    const apt = new apartment(
+      row.apartment_id,
       row.title,
       parseFloat(row.price),
       params,
       description,
-      ownerData,
+      row.owner_id,
       row.status,
     );
+
+    apt.ownerData = {
+      name: row.user_name,
+      contacts: row.contacts,
+    };
+
+    return apt;
   }
 
   // Передаємо екземпляри класів Apartment та User (покупець)

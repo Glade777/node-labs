@@ -7,6 +7,7 @@ class userController {
     req.session.newUser = {
       id: newUser.userId,
       name: newUser.name,
+      balance: newUser.balance,
     };
     res.status(201).json(newUser);
   }

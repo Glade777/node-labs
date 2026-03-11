@@ -26,6 +26,43 @@ class ApartmentService {
 
     return apartmentId;
   }
+
+  async purchaseApartment(apartmentId, buyerId) {
+    // 1. Отримуємо дані через репозиторій
+    const apartmentInstance = await repo.apartments.getById(apartmentId);
+    const buyerInstance = await repo.user.getUserById(buyerId);
+
+    // 2. Бізнес-валідація ДО транзакції
+    if (!apartmentInstance) {
+      throw new Error(`Квартиру з ID ${apartmentId} не знайдено`);
+    }
+
+    if (apartmentInstance.status === "sold") {
+      throw new Error(`Квартира вже продана`);
+    }
+
+    if (apartmentInstance.ownerId === buyerId) {
+      throw new Error(`Покупець вже є власником цієї квартири`);
+    }
+
+    if (!buyerInstance) {
+      throw new Error(`Користувача з ID ${buyerId} не знайдено`);
+    }
+
+    if (buyerInstance.balance < apartmentInstance.price) {
+      throw new Error(
+        `Недостатньо коштів: потрібно ${apartmentInstance.price}, є ${buyerInstance.balance}`,
+      );
+    }
+
+    // 3. Викликаємо транзакцію в репозиторії
+    const result = await repo.apartments.executePurchaseTransaction(
+      apartmentInstance,
+      buyerInstance,
+    );
+
+    return result;
+  }
 }
 
 module.exports = new ApartmentService();

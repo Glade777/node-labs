@@ -48,18 +48,16 @@ class userRepository {
     return res.rowCount > 0;
   }
 
-  async loginUser(name, hash) {
-    const query = `SELECT * FROM users WHERE name = 1$ AND password_hash = 2$`;
-    const res = this.db.query(query, [name, hash]);
-    const row = res.rows[0];
+  async loginUser(name, password) {
+    const user = await repo.user.getUserByName(name);
+    console.log(user);
+    if (!user) return null;
 
-    return new user(
-      row.userId,
-      row.name,
-      row.contacts,
-      row.balance,
-      row.password_hash,
-    );
+    const isValid = await hash.comparePassword(password, user.password_hash);
+
+    if (!isValid) return null;
+
+    return user;
   }
 
   async updateUserById(Id, newUser) {
@@ -88,6 +86,13 @@ class userRepository {
       row.contacts || "",
       row.balance || 0,
     );
+  }
+
+  async getUserByName(name) {
+    const res = await this.db.query("SELECT * FROM users WHERE name = $1", [
+      name,
+    ]);
+    return res.rows[0] || null;
   }
 }
 

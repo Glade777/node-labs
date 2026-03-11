@@ -1,4 +1,4 @@
-const ApartmentService = require("../services/ApartmentService");
+const ApartmentService = require("../services/apartmentService");
 const ApartmentDescriptionService = require("../services/descriptionService");
 const ApartmentParamsService = require("../services/paramsService");
 const userService = require("../services/userService");
@@ -40,7 +40,28 @@ class ApartmentController {
       apartment: apartment,
       description: description,
       params: params,
+      currentUser: req.session.newUser,
     });
+  }
+
+  async purchaseApartment(req, res) {
+    try {
+      const apartmentId = parseInt(req.params.apartmentId);
+      const { buyerId } = req.body;
+      console.log("apartmentId:", apartmentId, "buyerId:", buyerId);
+      const result = await ApartmentService.purchaseApartment(
+        apartmentId,
+        buyerId,
+      );
+      if (req.session.newUser) {
+        req.session.newUser.balance = result.updatedBuyer.balance;
+      }
+      res
+        .status(200)
+        .json({ message: "Квартиру успішно придбано", data: result });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
   }
 }
 

@@ -19,14 +19,14 @@ function renderApartments(parameters) {
         .join("");
 
       return `
-      <a href="/apartment/${apart.apartmentId}" id="productClicked" data-id="${apart.apartmentId}"><li class="card">
+      <a href="/apartment/${apart.apartmentId}" class="productClicked" data-id="${apart.apartmentId}"><li class="card">
           <strong>${apart.title}</strong>
           <strong class="price">Ціна: ${apart._price} грн</strong>
           <p>Опис: ${apart.description.fullText || ""}</p>
           <ul>
             ${paramsList}
           </ul>
-        </li>`;
+        </li></a>`;
     })
     .join("")}</ul>`;
 }
@@ -36,32 +36,66 @@ async function updateUI() {
   const count = document.getElementById("sortRooms").value;
 
   let url = `/?rooms=${count}&sort=${sort}`;
-
   if (!count) {
     url = `/?sort=${sort}`;
   }
+
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
   });
-
-  // const target = target.closest("#productClicked");
-  // const apartmentId = target.dataset.id;
 
   const data = await response.json();
   renderApartments(data);
 }
 
-document.getElementById("sortSelect").addEventListener("change", updateUI);
-document.getElementById("applyFilters").addEventListener("click", updateUI);
+// головна сторінка
+const sortSelect = document.getElementById("sortSelect");
+const applyFilters = document.getElementById("applyFilters");
 
-document
-  .querySelectorAll("product-list")
-  .addEventListener("click", async () => {
-    const target = target.closest(".productClicked");
-    const apartmentId = target.dataset.Id;
-    let URL = `/apartment/${apartmentId}`;
-    const response = await fetch(URL, {
-      headers: { Accept: "application/json" },
-    });
-    const data = await response.json();
+if (sortSelect) {
+  sortSelect.addEventListener("change", updateUI);
+}
+
+if (applyFilters) {
+  applyFilters.addEventListener("click", updateUI);
+}
+
+// сторінка квартири
+const purchaseBtn = document.getElementById("purchaseBtn");
+
+if (purchaseBtn) {
+  purchaseBtn.addEventListener("click", async () => {
+    const apartmentId = purchaseBtn.dataset.apartmentId;
+    const buyerId = parseInt(purchaseBtn.dataset.buyerId);
+    const messageDiv = document.getElementById("purchase-message");
+
+    purchaseBtn.disabled = true;
+    purchaseBtn.textContent = "Обробка...";
+
+    try {
+      const response = await fetch(`/apartment/${apartmentId}/purchase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buyerId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        messageDiv.textContent = "Квартиру успішно придбано!";
+        messageDiv.style.color = "green";
+        purchaseBtn.textContent = "Продано";
+      } else {
+        messageDiv.textContent = `${data.error}`;
+        messageDiv.style.color = "red";
+        purchaseBtn.disabled = false;
+        purchaseBtn.textContent = "Придбати";
+      }
+    } catch (err) {
+      messageDiv.textContent = "Помилка з'єднання";
+      messageDiv.style.color = "red";
+      purchaseBtn.disabled = false;
+      purchaseBtn.textContent = "Придбати";
+    }
   });
+}

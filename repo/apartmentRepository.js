@@ -28,7 +28,7 @@ class apartmentRepository {
     }
 
     return new apartment(
-      item.apartmentId,
+      item.apartment_id,
       item.title,
       item.price,
       item.params,
