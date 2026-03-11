@@ -175,5 +175,34 @@ class apartmentRepository {
       client.release();
     }
   }
+
+  async deleteApartment(apartmentId) {
+    const client = await this.db.connect();
+    try {
+      await client.query("BEGIN");
+
+      await client.query(
+        "DELETE FROM apartment_params WHERE apartment_id = $1",
+        [apartmentId],
+      );
+
+      await client.query(
+        "DELETE FROM apartment_descriptions WHERE apartment_id = $1",
+        [apartmentId],
+      );
+
+      await client.query("DELETE FROM apartments WHERE apartment_id = $1", [
+        apartmentId,
+      ]);
+
+      await client.query("COMMIT");
+      return true;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }
 module.exports = apartmentRepository;

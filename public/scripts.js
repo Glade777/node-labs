@@ -99,3 +99,23 @@ if (purchaseBtn) {
     }
   });
 }
+const deleteBtn = document.getElementById("deleteBtn");
+
+if (deleteBtn) {
+  deleteBtn.addEventListener("click", async () => {
+    const apartmentId = deleteBtn.dataset.apartmentId;
+
+    if (!confirm("Ви впевнені що хочете видалити оголошення?")) return;
+
+    const response = await fetch(`/apartment/${apartmentId}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      window.location.href = "/";
+    } else {
+      const data = await response.json();
+      alert(data.error);
+    }
+  });
+}

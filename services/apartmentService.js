@@ -46,6 +46,20 @@ class ApartmentService {
     });
   }
 
+  async deleteApartment(apartmentId, userId) {
+    const apartment = await repo.apartments.getById(apartmentId);
+
+    if (!apartment) {
+      throw new Error("Квартиру не знайдено");
+    }
+
+    if (apartment.ownerId !== userId) {
+      throw new Error("Ви не є власником цієї квартири");
+    }
+
+    return await repo.apartments.deleteApartment(apartmentId);
+  }
+
   async purchaseApartment(apartmentId, buyerId) {
     // 1. Отримуємо дані через репозиторій
     const apartmentInstance = await repo.apartments.getById(apartmentId);

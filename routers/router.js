@@ -16,6 +16,10 @@ router.post("/apartment/create", (req, res) => {
   ApartmentController.createApartment(req, res);
 });
 
+router.delete("/apartment/:apartmentId", (req, res) => {
+  ApartmentController.deleteApartment(req, res);
+});
+
 router.get("/apartment/:apartmentId", (req, res) => {
   ApartmentController.getApartmentById(req, res);
 });

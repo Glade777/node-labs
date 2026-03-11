@@ -83,6 +83,22 @@ class ApartmentController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async deleteApartment(req, res) {
+    try {
+      const apartmentId = parseInt(req.params.apartmentId);
+      const userId = req.session.newUser?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Не авторизований" });
+      }
+
+      await ApartmentService.deleteApartment(apartmentId, userId);
+      res.status(200).json({ message: "Квартиру видалено" });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ApartmentController();

@@ -68,6 +68,12 @@
     </main>
   </div>
 
+  <% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
+  <button id="deleteBtn" class="deleteBtn" data-apartment-id="<%= apartment.apartmentId %>">
+    Видалити оголошення
+  </button>
+<% } %>
+
   <%- include('footer') %>
   <script src="/scripts.js"></script>
 </body>
