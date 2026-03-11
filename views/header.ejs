@@ -1,0 +1,12 @@
+<header>
+  <% if (locals.currentUser) { %>
+    <a href="/user/<%= currentUser.id %>">
+      <button class="userBtn">Account</button>
+    </a>
+    <span class="balance">Баланс: <%= currentUser.balance %> грн</span>
+  <% } else { %>
+    <a href="/login">
+      <button class="userBtn">Увійти</button>
+    </a>
+  <% } %>
+</header>

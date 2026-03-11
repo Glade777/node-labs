@@ -1,32 +1,95 @@
-<head><link rel="stylesheet" href="/style.css"></head>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= apartment.title %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
 <body>
+  <%- include('header') %>
 
-     <% 
-  const labels = {
-    rooms: "Кімнат",
-    area: "Площа (м²)",
-    floor: "Поверх",
-    address: "Адреса"
-  };
-%>
-    <div id="product-list" >
+  <% 
+    const labels = {
+      rooms: "Кімнат",
+      area: "Площа (м²)",
+      floor: "Поверх",
+      address: "Адреса"
+    };
+  %>
+
+  <div class="page-wrapper">
+    <main class="main-content">
+      <div id="product-list">
         <ul>
           <li class="card">
-              <strong><%= apartment.title %></strong>
-              <strong class="price">Ціна: <%= apartment._price %> грн</strong>
-              <p>Опис: <%= apartment.description.fullText %></p>
-              <ul>
-                <%for(let key in apartment.params){
-                  %>
-                  <li>
-                    <strong><%=labels[key]%>:</strong><%=apartment.params[key]%>
-                  </li>
-                  <%
-                }%>
-              </ul>
-            </li>
+            <strong><%= apartment.title %></strong>
+            <strong class="price">Ціна: <%= apartment.price %> грн</strong>
+            <p>Опис: <%= apartment.description.fullText %></p>
+            <ul>
+              <% for(let key in apartment.params) { %>
+                <li>
+                  <strong><%= labels[key] %>:</strong> <%= apartment.params[key] %>
+                </li>
+              <% } %>
+            </ul>
+          </li>
         </ul>
       </div>
 
-    <script src="/scripts.js"></script>
+      <div class="owner-info">
+        <strong><%= apartment.ownerData?.name || '' %></strong>
+        <b><strong><%= apartment.ownerData?.contacts || '' %></strong></b>
+      </div>
+
+      <!-- КНОПКА ПРИДБАТИ -->
+      <% if (locals.currentUser) { %>
+        <% if (apartment.status === 'sold') { %>
+          <button class="buyBtn" disabled>Продано</button>
+        <% } else if (apartment.ownerId === currentUser.id) { %>
+          <button class="buyBtn" disabled>Це ваша квартира</button>
+        <% } else { %>
+          <button 
+            class="buyBtn" 
+            id="purchaseBtn"
+            data-apartment-id="<%= apartment.apartmentId %>"
+            data-buyer-id="<%= currentUser.id %>"
+          >
+            Придбати
+          </button>
+        <% } %>
+      <% } else { %>
+        <a href="/login">
+          <button class="buyBtn">Увійдіть щоб придбати</button>
+        </a>
+      <% } %>
+
+      <div id="purchase-message"></div>
+    </main>
+  </div>
+
+  <% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
+  <button id="deleteBtn" class="deleteBtn" data-apartment-id="<%= apartment.apartmentId %>">
+    Видалити оголошення
+  </button>
+<% } %>
+
+<% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
+  <div class="edit-form">
+    <h3>Редагувати оголошення</h3>
+    <input type="text" id="editTitle" placeholder="Назва" value="<%= apartment.title %>" />
+    <input type="number" id="editPrice" placeholder="Ціна" value="<%= apartment.price %>" />
+    <input type="number" id="editRooms" placeholder="Кімнат" value="<%= apartment.params.rooms %>" />
+    <input type="number" id="editArea" placeholder="Площа" value="<%= apartment.params.area %>" />
+    <input type="number" id="editFloor" placeholder="Поверх" value="<%= apartment.params.floor %>" />
+    <input type="text" id="editAddress" placeholder="Адреса" value="<%= apartment.params.address %>" />
+    <textarea id="editFullText"><%= apartment.description.fullText %></textarea>
+    <button id="updateBtn" data-apartment-id="<%= apartment.apartmentId %>">Зберегти</button>
+    <div id="update-message"></div>
+  </div>
+<% } %>
+
+  <%- include('footer') %>
+  <script src="/scripts.js"></script>
 </body>
+</html>

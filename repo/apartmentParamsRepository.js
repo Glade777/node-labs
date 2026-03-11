@@ -5,14 +5,30 @@ class ApartmentParamsRepository {
     this.db = db;
   }
 
+  // async getAll() {
+  //   return this.db.map(
+  //     (item) =>
+  //       new ApartmentParams(
+  //         item.params.rooms,
+  //         item.params.area,
+  //         item.params.floor,
+  //         item.params.address,
+  //       ),
+  //   );
+  // }
+
   async getAll() {
-    return this.db.map(
-      (item) =>
+    const query = `SELECT rooms, area, floor, address FROM apartment_params`;
+
+    const res = await this.db.query(query);
+
+    return res.rows.map(
+      (row) =>
         new ApartmentParams(
-          item.params.rooms,
-          item.params.area,
-          item.params.floor,
-          item.params.address,
+          row.rooms,
+          parseFloat(row.area),
+          row.floor,
+          row.address,
         ),
     );
   }

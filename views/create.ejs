@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Створити оголошення</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <%- include('header') %>
+
+    <div class="form-container">
+      <h2>Створити оголошення</h2>
+
+      <input type="text" id="title" placeholder="Назва" required />
+      <input type="number" id="price" placeholder="Ціна (грн)" required />
+      <input type="number" id="rooms" placeholder="Кількість кімнат" required />
+      <input type="number" id="area" placeholder="Площа (м²)" required />
+      <input type="number" id="floor" placeholder="Поверх" required />
+      <input type="text" id="address" placeholder="Адреса" required />
+      <textarea id="fullText" placeholder="Опис"></textarea>
+
+      <button id="submitBtn">Опублікувати</button>
+      <div id="error-message" style="color: red"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("submitBtn")
+        .addEventListener("click", async () => {
+          const body = {
+            title: document.getElementById("title").value,
+            price: parseFloat(document.getElementById("price").value),
+            rooms: parseInt(document.getElementById("rooms").value),
+            area: parseFloat(document.getElementById("area").value),
+            floor: parseInt(document.getElementById("floor").value),
+            address: document.getElementById("address").value,
+            fullText: document.getElementById("fullText").value,
+          };
+
+          const response = await fetch("/apartment/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            window.location.href = `/`;
+          } else {
+            document.getElementById("error-message").textContent = data.error;
+          }
+        });
+    </script>
+  </body>
+</html>
