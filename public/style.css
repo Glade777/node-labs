@@ -1,136 +1,723 @@
-/* Загальні налаштування сторінки */
 body {
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #f4f7f6;
-  margin: 0;
-  padding: 20px;
-  color: #2d3436;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #eef2f5);
+    margin: 0;
+    padding: 20px;
+    color: #2d3436;
 }
 
 h1 {
-  text-align: center;
-  color: #2d3436;
-  margin-bottom: 40px;
+    text-align: center;
+    margin-bottom: 35px;
+    font-weight: 600;
 }
 
 .page-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Контролі (Сортування) */
+.createBtn {
+    background: #f05a28;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.createBtn:hover {
+    background: #e04d1e;
+}
+
 .controls {
-  background: white;
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  display: flex;
-  align-items: center;
-  gap: 15px;
+    background: white;
+    padding: 18px 22px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-select {
-  padding: 8px 12px;
-  border: 1px solid #dfe6e9;
-  border-radius: 6px;
-  outline: none;
-  cursor: pointer;
-  background-color: #fff;
+.filter {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
 }
 
-/* Сітка карток */
+select,
+input {
+    padding: 8px 10px;
+    border: 1px solid #dfe6e9;
+    border-radius: 6px;
+    outline: none;
+    margin-top: 4px;
+}
+
+.applyBtn {
+    background: #2d3436;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.applyBtn:hover {
+    background: #1f2526;
+}
+
 #product-list ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
 }
 
-/* Картка квартири */
 .card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s,
-    border-color 0.2s;
-  border: 1px solid #eee;
-  display: flex;
-  flex-direction: column;
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: 0.25s;
+    display: flex;
+    flex-direction: column;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  border-color: #f05a28;
-  cursor: pointer;
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    border-color: #f05a28;
 }
 
 .card strong {
-  display: block;
-  font-size: 1.2em;
-  margin-bottom: 10px;
-  color: #2d3436;
+    font-size: 18px;
+    margin-bottom: 8px;
 }
 
-/* Ціна */
 .price {
-  background: #fff5f2;
-  color: #f05a28 !important;
-  font-size: 1.3em !important;
-  padding: 8px;
-  border-radius: 6px;
-  text-align: center;
-  margin-bottom: 15px !important;
+    background: #fff3ef;
+    color: #f05a28 !important;
+    font-size: 20px !important;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 12px !important;
 }
 
-/* Опис */
 .card p {
-  font-size: 0.95em;
-  line-height: 1.5;
-  color: #636e72;
-  margin-bottom: 20px;
+    font-size: 14px;
+    color: #636e72;
+    margin-bottom: 15px;
 }
 
-/* Внутрішній список параметрів (params) */
+
 .card ul {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr; /* два стовпчики */
-  gap: 10px;
-  padding: 12px !important;
-  background: #f9f9f9;
-  border-radius: 8px;
-  list-style: none !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px !important;
+    background: #f8f9fa;
+    border-radius: 8px;
+    list-style: none !important;
 }
 
 .card ul li {
-  font-size: 0.85em;
-  color: #2d3436;
-  border-bottom: none !important;
-  padding: 0 !important;
+    font-size: 13px;
 }
 
 .card ul li strong {
-  display: inline !important;
-  font-size: 1em;
-  color: #b2bec3;
-  text-transform: capitalize; /* Робить першу літеру великою */
-  margin-right: 5px;
+    color: #95a5a6;
+    font-size: 13px;
 }
 
-/* Футер */
 footer {
-  margin-top: 60px;
-  text-align: center;
-  padding: 20px;
-  border-top: 1px solid #eee;
-  color: #b2bec3;
+    margin-top: 60px;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #eee;
+    color: #b2bec3;
 }
 
 a {
-  text-decoration: none;
+    text-decoration: none;
+}
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.form-container {
+    background: white;
+    padding: 35px 40px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+form input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #dfe6e9;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+form input:focus {
+    border-color: #f05a28;
+}
+
+form button {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: #f05a28;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+form button:hover {
+    background: #e14f1e;
+}
+
+.switch {
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.switch a {
+    color: #f05a28;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#login-error {
+    margin-top: 10px;
+    color: red;
+    font-size: 14px;
+}
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.form-container {
+    background: white;
+    padding: 35px 40px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.form-container h2 {
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: #2d3436;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+form input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #dfe6e9;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+form input:focus {
+    border-color: #f05a28;
+}
+
+form button {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: #f05a28;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+form button:hover {
+    background: #e14f1e;
+}
+
+.switch {
+    margin-top: 18px;
+    font-size: 14px;
+}
+
+.switch a {
+    color: #f05a28;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#register-error {
+    margin-top: 10px;
+    color: red;
+    font-size: 14px;
+}
+.create-form {
+    width: 500px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+textarea {
+    margin-top: 12px;
+    width: 100%;
+    min-height: 90px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #dfe6e9;
+    resize: vertical;
+    font-family: inherit;
+}
+
+#error-message {
+    margin-top: 10px;
+    color: red;
+    font-size: 14px;
+}
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 14px 30px;
+    margin-bottom: 30px;
+
+    background: white;
+    border-radius: 10px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #2d3436;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.userBtn {
+    background: #f05a28;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.userBtn:hover {
+    background: #e14f1e;
+}
+
+.balance {
+    font-size: 14px;
+    color: #636e72;
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+.info-card{
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    max-width:700px;
+    margin:0 auto;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+    line-height:1.6;
+}
+
+.info-card ul{
+    margin-top:10px;
+    padding-left:20px;
+}
+.user-card{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    max-width:500px;
+    margin:0 auto;
+    box-shadow:0 4px 15px rgba(0,0,0,0.06);
+    line-height:1.8;
+}
+
+.user-card p{
+    font-size:15px;
+    margin-bottom:10px;
+}
+
+.balance-value{
+    color:#f05a28;
+    font-weight:600;
+}
+
+.user-actions{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+}
+
+.editBtn{
+    background:#2d3436;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+.deleteBtn{
+    background:#f05a28;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+.buyBtn{
+    background:#f05a28;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+#saveBtn{
+    background:#f05a28;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.back-link{
+    text-align:center;
+    margin-top:30px;
+}
+
+.back-link a{
+    text-decoration:none;
+    color:#2d3436;
+    font-weight:500;
+}
+#submitBtn{
+    margin-top: 15px;
+    padding: 12px;
+    width: 100%;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #f05a28;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+#submitBtn:hover{
+    background: #e14f1e;
+    transform: translateY(-1px);
+}
+
+#submitBtn:active{
+    transform: translateY(0);
+}
+.backBtn{
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background: #2d3436;
+    color: white;
+
+    text-decoration: none;
+    font-size: 14px;
+
+    transition: 0.2s;
+}
+
+.backBtn:hover{
+    background: #1e272e;
+}
+.apartment-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.apartment-card-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.apartment-card {
+    width: 100%;
+    max-width: 720px;
+    padding: 34px;
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f1f1f1;
+}
+
+.apartment-card:hover {
+    transform: none;
+    border-color: #f1f1f1;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.apartment-title {
+    text-align: left;
+    margin-bottom: 22px;
+    font-size: 34px;
+    line-height: 1.15;
+    color: #5a2ca0;
+}
+
+.apartment-price {
+    display: block;
+    font-size: 28px !important;
+    font-weight: 700;
+    padding: 18px 20px;
+    border-radius: 14px;
+    margin-bottom: 28px !important;
+}
+
+.apartment-description {
+    margin-bottom: 22px;
+}
+
+.apartment-description strong {
+    display: block;
+    font-size: 18px;
+    color: #636e72;
+    margin-bottom: 8px;
+}
+
+.apartment-description p {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.45;
+    color: #5f6b72;
+}
+
+.apartment-details {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+    padding: 22px !important;
+    background: #f8f9fb;
+    border-radius: 16px;
+    list-style: none !important;
+}
+
+.apartment-details li {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 10px;
+    align-items: start;
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+.apartment-details li strong {
+    color: #7f8c8d;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.apartment-details li span {
+    color: #5a2ca0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.owner-info {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    background: white;
+    padding: 22px 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.owner-info h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #2d3436;
+}
+
+.owner-info p {
+    margin: 6px 0;
+    color: #636e72;
+}
+
+.buyBtn {
+    display: block;
+    margin: 0 auto 16px;
+    min-width: 240px;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #f05a28;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.buyBtn:hover:enabled {
+    background: #e14f1e;
+}
+
+.buyBtn:disabled {
+    background: #c7cdd1;
+    cursor: not-allowed;
+}
+
+#purchase-message,
+#update-message {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.owner-actions {
+    max-width: 720px;
+    margin: 0 auto 16px;
+}
+
+.deleteBtn {
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 10px;
+    background: #d63031;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.deleteBtn:hover {
+    background: #bc2627;
+}
+
+.edit-form {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    background: white;
+    padding: 26px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.edit-form h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    color: #2d3436;
+}
+
+.edit-form input,
+.edit-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.edit-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+#updateBtn {
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 10px;
+    background: #2d3436;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#updateBtn:hover {
+    background: #1f2526;
+}
+
+.apartment-back {
+    max-width: 720px;
+    margin: 0 auto;
 }

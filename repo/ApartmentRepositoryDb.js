@@ -1,251 +1,240 @@
-const apartment = require("../models/Apartment");
-const apartmentParams = require("../models/apartmentParams");
-const apartmentDescription = require("../models/ApartmentDescription");
-const user = require("../models/user");
+const sequelize = require("../db/db");
+const {
+    Apartment,
+    ApartmentParams,
+    ApartmentDescription,
+    User,
+} = require("../models");
 
-class apartmentRepository {
-  constructor(db) {
-    this.db = db;
-  }
+class ApartmentRepository {
+    async getAll() {
+        const apartments = await Apartment.findAll({
+            include: [
+                {
+                    model: ApartmentParams,
+                    as: "params",
+                },
+                {
+                    model: ApartmentDescription,
+                    as: "description",
+                },
+            ],
+            order: [["apartment_id", "ASC"]],
+        });
 
-  async getAll() {
-    const query = `
-      SELECT 
-        a.apartment_id, a.title, a.price, a.owner_id, a.status,
-        p.rooms, p.area, p.floor, p.address,
-        d.full_text, d.features
-      FROM apartments a
-      LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
-      LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
-      ORDER BY a.apartment_id ASC;
-    `;
-
-    const res = await this.db.query(query);
-    return res.rows.map((row) => {
-      const params = new apartmentParams(
-        row.rooms,
-        parseFloat(row.area),
-        row.floor,
-        row.address,
-      );
-
-      const description = new apartmentDescription(row.full_text, row.features);
-
-      return new apartment(
-        row.apartment_id,
-        row.title,
-        parseFloat(row.price),
-        params,
-        description,
-        row.owner_id,
-        row.status,
-      );
-    });
-  }
-
-  async getById(Id) {
-    console.log("repo:", Id);
-    const query = `
-    SELECT 
-        a.*, 
-        u.user_id, u.name as user_name, u.balance, u.contacts,
-        p.rooms, p.area, p.floor, p.address,
-        d.full_text, d.features
-    FROM apartments a
-    LEFT JOIN users u ON a.owner_id = u.user_id
-    LEFT JOIN apartment_params p ON a.apartment_id = p.apartment_id
-    LEFT JOIN apartment_descriptions d ON a.apartment_id = d.apartment_id
-    WHERE a.apartment_id = $1;
-  `;
-
-    const parseId = parseInt(Id);
-    const res = await this.db.query(query, [parseId]);
-    const row = res.rows[0];
-
-    const params = new apartmentParams(
-      row.rooms,
-      parseFloat(row.area),
-      row.floor,
-      row.address,
-    );
-
-    const description = new apartmentDescription(row.full_text, row.features);
-
-    const apt = new apartment(
-      row.apartment_id,
-      row.title,
-      parseFloat(row.price),
-      params,
-      description,
-      row.owner_id,
-      row.status,
-    );
-
-    apt.ownerData = {
-      name: row.user_name,
-      contacts: row.contacts,
-    };
-
-    return apt;
-  }
-
-  // Передаємо екземпляри класів Apartment та User (покупець)
-  async executePurchaseTransaction(apartmentInstance, buyerInstance) {
-    const client = await this.db.connect();
-
-    try {
-      await client.query("BEGIN");
-
-      // 1. Знімаємо гроші у покупця (використовуємо дані з екземпляра buyerInstance)
-      const buyerRes = await client.query(
-        "UPDATE users SET balance = balance - $1 WHERE user_id = $2 AND balance >= $1",
-        [apartmentInstance.price, buyerInstance.userId],
-      );
-
-      if (buyerRes.rowCount === 0) {
-        throw new Error(
-          `Покупець ${buyerInstance.name} має недостатньо коштів`,
-        );
-      }
-
-      // 2. Нараховуємо продавцю (використовуємо ownerId з екземпляра apartmentInstance)
-      await client.query(
-        "UPDATE users SET balance = balance + $1 WHERE user_id = $2",
-        [apartmentInstance.price, apartmentInstance.ownerId],
-      );
-
-      // 3. Міняємо статус та власника квартири в БД
-      await client.query(
-        "UPDATE apartments SET owner_id = $1, status = 'sold' WHERE apartment_id = $2",
-        [buyerInstance.userId, apartmentInstance.apartmentId],
-      );
-
-      await client.query("COMMIT");
-
-      buyerInstance.balance -= apartmentInstance.price;
-      apartmentInstance.status = "sold";
-      apartmentInstance.ownerId = buyerInstance.userId;
-
-      return {
-        success: true,
-        updatedApartment: apartmentInstance,
-        updatedBuyer: buyerInstance,
-      };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+        return apartments;
     }
-  }
 
-  async createApartment(data) {
-    const client = await this.db.connect();
-    try {
-      await client.query("BEGIN");
+    async getById(id) {
+        const apartment = await Apartment.findByPk(parseInt(id), {
+            include: [
+                {
+                    model: User,
+                    as: "owner",
+                    attributes: ["user_id", "name", "contacts", "balance"],
+                },
+                {
+                    model: ApartmentParams,
+                    as: "params",
+                },
+                {
+                    model: ApartmentDescription,
+                    as: "description",
+                },
+            ],
+        });
 
-      // 1. створюємо квартиру
-      const aptRes = await client.query(
-        `INSERT INTO apartments (title, price, owner_id, status)
-       VALUES ($1, $2, $3, 'active') RETURNING *`,
-        [data.title, data.price, data.ownerId],
-      );
-      const apt = aptRes.rows[0];
-
-      // 2. створюємо параметри
-      await client.query(
-        `INSERT INTO apartment_params (apartment_id, rooms, area, floor, address)
-       VALUES ($1, $2, $3, $4, $5)`,
-        [apt.apartment_id, data.rooms, data.area, data.floor, data.address],
-      );
-
-      // 3. створюємо опис
-      await client.query(
-        `INSERT INTO apartment_descriptions (apartment_id, full_text, features)
-       VALUES ($1, $2, $3)`,
-        [apt.apartment_id, data.fullText, []],
-      );
-
-      await client.query("COMMIT");
-      return { apartmentId: apt.apartment_id };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+        return apartment;
     }
-  }
 
-  async deleteApartment(apartmentId) {
-    const client = await this.db.connect();
-    try {
-      await client.query("BEGIN");
+    async createApartment(data) {
+        const transaction = await sequelize.transaction();
 
-      await client.query(
-        "DELETE FROM apartment_params WHERE apartment_id = $1",
-        [apartmentId],
-      );
+        try {
+            const apartment = await Apartment.create(
+                {
+                    title: data.title,
+                    price: data.price,
+                    owner_id: data.ownerId,
+                    status: "active",
+                },
+                { transaction },
+            );
 
-      await client.query(
-        "DELETE FROM apartment_descriptions WHERE apartment_id = $1",
-        [apartmentId],
-      );
+            await ApartmentParams.create(
+                {
+                    apartment_id: apartment.apartment_id,
+                    rooms: data.rooms,
+                    area: data.area,
+                    floor: data.floor,
+                    address: data.address,
+                },
+                { transaction },
+            );
 
-      await client.query("DELETE FROM apartments WHERE apartment_id = $1", [
-        apartmentId,
-      ]);
+            await ApartmentDescription.create(
+                {
+                    apartment_id: apartment.apartment_id,
+                    full_text: data.fullText,
+                    features: data.features || [],
+                },
+                { transaction },
+            );
 
-      await client.query("COMMIT");
-      return true;
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+            await transaction.commit();
+
+            return {
+                success: true,
+                apartmentId: apartment.apartment_id,
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
-  }
 
-  async updateApartment(apartmentId, data) {
-    const client = await this.db.connect();
-    try {
-      await client.query("BEGIN");
+    async updateApartment(apartmentId, data) {
+        const transaction = await sequelize.transaction();
 
-      await client.query(
-        `UPDATE apartments 
-       SET title = COALESCE($1, title), price = COALESCE($2, price)
-       WHERE apartment_id = $3`,
-        [data.title || null, data.price || null, apartmentId],
-      );
+        try {
+            const apartment = await Apartment.findByPk(apartmentId, { transaction });
 
-      await client.query(
-        `UPDATE apartment_params 
-       SET rooms = COALESCE($1, rooms), area = COALESCE($2, area),
-           floor = COALESCE($3, floor), address = COALESCE($4, address)
-       WHERE apartment_id = $5`,
-        [
-          data.rooms || null,
-          data.area || null,
-          data.floor || null,
-          data.address || null,
-          apartmentId,
-        ],
-      );
+            if (!apartment) {
+                throw new Error("Квартиру не знайдено");
+            }
 
-      await client.query(
-        `UPDATE apartment_descriptions 
-       SET full_text = COALESCE($1, full_text)
-       WHERE apartment_id = $2`,
-        [data.fullText || null, apartmentId],
-      );
+            await apartment.update(
+                {
+                    title: data.title ?? apartment.title,
+                    price: data.price ?? apartment.price,
+                },
+                { transaction },
+            );
 
-      await client.query("COMMIT");
-      return { success: true, apartmentId };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
+            const params = await ApartmentParams.findByPk(apartmentId, {
+                transaction,
+            });
+
+            if (params) {
+                await params.update(
+                    {
+                        rooms: data.rooms ?? params.rooms,
+                        area: data.area ?? params.area,
+                        floor: data.floor ?? params.floor,
+                        address: data.address ?? params.address,
+                    },
+                    { transaction },
+                );
+            }
+
+            const description = await ApartmentDescription.findByPk(apartmentId, {
+                transaction,
+            });
+
+            if (description) {
+                await description.update(
+                    {
+                        full_text: data.fullText ?? description.full_text,
+                        features: data.features ?? description.features,
+                    },
+                    { transaction },
+                );
+            }
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                apartmentId,
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
-  }
+
+    async deleteApartment(apartmentId) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            await ApartmentParams.destroy({
+                where: { apartment_id: apartmentId },
+                transaction,
+            });
+
+            await ApartmentDescription.destroy({
+                where: { apartment_id: apartmentId },
+                transaction,
+            });
+
+            const deletedCount = await Apartment.destroy({
+                where: { apartment_id: apartmentId },
+                transaction,
+            });
+
+            if (!deletedCount) {
+                throw new Error("Квартиру не знайдено");
+            }
+
+            await transaction.commit();
+            return true;
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    }
+
+    async executePurchaseTransaction(apartmentId, buyerId) {
+        const transaction = await sequelize.transaction();
+
+        try {
+            const apartment = await Apartment.findByPk(apartmentId, { transaction });
+
+            if (!apartment) {
+                throw new Error("Квартиру не знайдено");
+            }
+
+            const buyer = await User.findByPk(buyerId, { transaction });
+
+            if (!buyer) {
+                throw new Error("Покупця не знайдено");
+            }
+
+            const seller = await User.findByPk(apartment.owner_id, { transaction });
+
+            if (!seller) {
+                throw new Error("Продавця не знайдено");
+            }
+
+            if (apartment.status === "sold") {
+                throw new Error("Квартира вже продана");
+            }
+
+            if (Number(buyer.balance) < Number(apartment.price)) {
+                throw new Error(`Покупець ${buyer.name} має недостатньо коштів`);
+            }
+
+            buyer.balance = Number(buyer.balance) - Number(apartment.price);
+            seller.balance = Number(seller.balance) + Number(apartment.price);
+            apartment.owner_id = buyer.user_id;
+            apartment.status = "sold";
+
+            await buyer.save({ transaction });
+            await seller.save({ transaction });
+            await apartment.save({ transaction });
+
+            await transaction.commit();
+
+            return {
+                success: true,
+                updatedApartment: apartment,
+                updatedBuyer: buyer,
+            };
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    }
 }
-module.exports = apartmentRepository;
+
+module.exports = new ApartmentRepository();

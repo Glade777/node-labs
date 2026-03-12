@@ -1,27 +1,13 @@
-const apartmentDescription = require("../models/ApartmentDescription");
+const { ApartmentDescription } = require("../models");
 
-class apartmentDescriptionRepository {
-  constructor(db) {
-    this.db = db;
-  }
-  // async getAll() {
-  //   return this.db.map(
-  //     (item) =>
-  //       new apartmentDescription(
-  //         item.description.fullText,
-  //         item.description.features,
-  //       ),
-  //   );
-  // }
+class ApartmentDescriptionRepository {
 
-  async getAll() {
-    const query = `SELECT full_text, features FROM apartment_descriptions`;
-    const res = await this.db.query(query);
+    async getAll() {
+        const descriptions = await ApartmentDescription.findAll();
 
-    return res.rows.map(
-      (row) => new apartmentDescription(row.fullText, row.features),
-    );
-  }
+        return descriptions;
+    }
+
 }
 
-module.exports = apartmentDescriptionRepository;
+module.exports = ApartmentDescriptionRepository;

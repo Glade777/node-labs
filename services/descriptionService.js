@@ -1,10 +1,12 @@
-const repo = require("../repo/repository");
+const { ApartmentDescription } = require("../models");
 
 class ApartmentDescriptionService {
-  async getDescription() {
-    const description = await repo.description.getAll();
-    return description;
-  }
+
+    async getDescription() {
+        const descriptions = await ApartmentDescription.findAll();
+        return descriptions;
+    }
+
 }
 
 module.exports = new ApartmentDescriptionService();

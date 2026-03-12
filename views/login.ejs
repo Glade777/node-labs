@@ -1,43 +1,63 @@
-<div class="form-container">
-  <h2>Вхід</h2>
-  <form id="loginForm">
-    <!-- <input
-      type="text"
-      name="contacts"
-      placeholder="Телефон або Email"
-      required
-    /> -->
-    <input type="text" name="name" placeholder="Ім'я" required />
-    <input type="password" name="password" placeholder="Пароль" required />
-    <button type="submit" style="background: #007bff">Увійти</button>
-  </form>
-  <div id="login-error" style="color: red"></div>
-  <div class="switch">
-    Немає акаунту? <a href="login/register">Зареєструватися</a>
-  </div>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <title>Вхід</title>
+    <link rel="stylesheet" href="/style.css" />
+</head>
+
+<body>
+
+<%- include('header') %>
+
+<div class="login-wrapper">
+    <div class="form-container">
+
+        <h2>Вхід</h2>
+
+        <form id="loginForm">
+            <input type="text" name="name" placeholder="Ім'я" required />
+            <input type="password" name="password" placeholder="Пароль" required />
+
+            <button type="submit">Увійти</button>
+        </form>
+
+        <div id="login-error"></div>
+
+        <div class="switch">
+            Немає акаунту?
+            <a href="/login/register">Зареєструватися</a>
+        </div>
+
+    </div>
 </div>
 
+<%- include('footer') %>
+
 <script>
-  const form = document.getElementById("loginForm");
+    const form = document.getElementById("loginForm");
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    const name = document.querySelector('input[name="name"]').value;
-    const password = document.querySelector('input[name="password"]').value;
+        const name = document.querySelector('input[name="name"]').value;
+        const password = document.querySelector('input[name="password"]').value;
 
-    const response = await fetch("/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, password }),
+        const response = await fetch("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, password }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            window.location.href = `/user/${data.userId}`;
+        } else {
+            const err = await response.json();
+            document.getElementById("login-error").textContent = err.error;
+        }
     });
-
-    if (response.ok) {
-      const data = await response.json();
-      window.location.href = `/user/${data.userId}`;
-    } else {
-      const err = await response.json();
-      document.getElementById("login-error").textContent = err.error;
-    }
-  });
 </script>
+
+</body>
+</html>

@@ -1,95 +1,155 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= apartment.title %></title>
-  <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= apartment.title %></title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <%- include('header') %>
+<%- include('header') %>
 
-  <% 
-    const labels = {
-      rooms: "Кімнат",
-      area: "Площа (м²)",
-      floor: "Поверх",
-      address: "Адреса"
-    };
-  %>
-
-  <div class="page-wrapper">
+<div class="page-wrapper apartment-page">
     <main class="main-content">
-      <div id="product-list">
-        <ul>
-          <li class="card">
-            <strong><%= apartment.title %></strong>
-            <strong class="price">Ціна: <%= apartment.price %> грн</strong>
-            <p>Опис: <%= apartment.description.fullText %></p>
-            <ul>
-              <% for(let key in apartment.params) { %>
-                <li>
-                  <strong><%= labels[key] %>:</strong> <%= apartment.params[key] %>
-                </li>
-              <% } %>
-            </ul>
-          </li>
-        </ul>
-      </div>
+        <div class="apartment-card-wrapper">
+            <div class="card apartment-card">
+                <h1 class="apartment-title"><%= apartment.title %></h1>
 
-      <div class="owner-info">
-        <strong><%= apartment.ownerData?.name || '' %></strong>
-        <b><strong><%= apartment.ownerData?.contacts || '' %></strong></b>
-      </div>
+                <div class="price apartment-price">
+                    Ціна: <%= apartment.price %> грн
+                </div>
 
-      <!-- КНОПКА ПРИДБАТИ -->
-      <% if (locals.currentUser) { %>
-        <% if (apartment.status === 'sold') { %>
-          <button class="buyBtn" disabled>Продано</button>
-        <% } else if (apartment.ownerId === currentUser.id) { %>
-          <button class="buyBtn" disabled>Це ваша квартира</button>
+                <div class="apartment-description">
+                    <strong>Опис:</strong>
+                    <p><%= apartment.description?.full_text || "Опис відсутній" %></p>
+                </div>
+
+                <ul class="apartment-details">
+                    <li>
+                        <strong>Кімнат:</strong>
+                        <span><%= apartment.params?.rooms ?? "-" %></span>
+                    </li>
+                    <li>
+                        <strong>Площа (м²):</strong>
+                        <span><%= apartment.params?.area ?? "-" %></span>
+                    </li>
+                    <li>
+                        <strong>Поверх:</strong>
+                        <span><%= apartment.params?.floor ?? "-" %></span>
+                    </li>
+                    <li>
+                        <strong>Адреса:</strong>
+                        <span><%= apartment.params?.address ?? "-" %></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="owner-info">
+            <h3>Контакти власника</h3>
+            <p><strong><%= apartment.owner?.name || "" %></strong></p>
+            <p><%= apartment.owner?.contacts || "" %></p>
+        </div>
+
+        <% if (locals.currentUser) { %>
+            <% if (apartment.status === "sold") { %>
+                <button class="buyBtn" disabled>Продано</button>
+            <% } else if (Number(apartment.owner_id) === Number(currentUser.id)) { %>
+                <button class="buyBtn" disabled>Це ваша квартира</button>
+            <% } else { %>
+                <button
+                        class="buyBtn"
+                        id="purchaseBtn"
+                        data-apartment-id="<%= apartment.apartment_id %>"
+                        data-buyer-id="<%= currentUser.id %>"
+                >
+                    Придбати
+                </button>
+            <% } %>
         <% } else { %>
-          <button 
-            class="buyBtn" 
-            id="purchaseBtn"
-            data-apartment-id="<%= apartment.apartmentId %>"
-            data-buyer-id="<%= currentUser.id %>"
-          >
-            Придбати
-          </button>
+            <a href="/login">
+                <button class="buyBtn">Увійдіть щоб придбати</button>
+            </a>
         <% } %>
-      <% } else { %>
-        <a href="/login">
-          <button class="buyBtn">Увійдіть щоб придбати</button>
-        </a>
-      <% } %>
 
-      <div id="purchase-message"></div>
+        <div id="purchase-message"></div>
     </main>
-  </div>
 
-  <% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
-  <button id="deleteBtn" class="deleteBtn" data-apartment-id="<%= apartment.apartmentId %>">
-    Видалити оголошення
-  </button>
-<% } %>
+    <% if (locals.currentUser && Number(apartment.owner_id) === Number(currentUser.id)) { %>
+        <div class="owner-actions">
+            <button
+                    id="deleteBtn"
+                    class="deleteBtn"
+                    data-apartment-id="<%= apartment.apartment_id %>"
+            >
+                Видалити оголошення
+            </button>
+        </div>
+    <% } %>
 
-<% if (locals.currentUser && apartment.ownerId === currentUser.id) { %>
-  <div class="edit-form">
-    <h3>Редагувати оголошення</h3>
-    <input type="text" id="editTitle" placeholder="Назва" value="<%= apartment.title %>" />
-    <input type="number" id="editPrice" placeholder="Ціна" value="<%= apartment.price %>" />
-    <input type="number" id="editRooms" placeholder="Кімнат" value="<%= apartment.params.rooms %>" />
-    <input type="number" id="editArea" placeholder="Площа" value="<%= apartment.params.area %>" />
-    <input type="number" id="editFloor" placeholder="Поверх" value="<%= apartment.params.floor %>" />
-    <input type="text" id="editAddress" placeholder="Адреса" value="<%= apartment.params.address %>" />
-    <textarea id="editFullText"><%= apartment.description.fullText %></textarea>
-    <button id="updateBtn" data-apartment-id="<%= apartment.apartmentId %>">Зберегти</button>
-    <div id="update-message"></div>
-  </div>
-<% } %>
+    <% if (locals.currentUser && Number(apartment.owner_id) === Number(currentUser.id)) { %>
+        <div class="edit-form">
+            <h3>Редагувати оголошення</h3>
 
-  <%- include('footer') %>
-  <script src="/scripts.js"></script>
+            <input
+                    type="text"
+                    id="editTitle"
+                    placeholder="Назва"
+                    value="<%= apartment.title %>"
+            />
+
+            <input
+                    type="number"
+                    id="editPrice"
+                    placeholder="Ціна"
+                    value="<%= apartment.price %>"
+            />
+
+            <input
+                    type="number"
+                    id="editRooms"
+                    placeholder="Кімнат"
+                    value="<%= apartment.params?.rooms ?? '' %>"
+            />
+
+            <input
+                    type="number"
+                    id="editArea"
+                    placeholder="Площа"
+                    value="<%= apartment.params?.area ?? '' %>"
+            />
+
+            <input
+                    type="number"
+                    id="editFloor"
+                    placeholder="Поверх"
+                    value="<%= apartment.params?.floor ?? '' %>"
+            />
+
+            <input
+                    type="text"
+                    id="editAddress"
+                    placeholder="Адреса"
+                    value="<%= apartment.params?.address ?? '' %>"
+            />
+
+            <textarea id="editFullText"><%= apartment.description?.full_text || "" %></textarea>
+
+            <button
+                    id="updateBtn"
+                    data-apartment-id="<%= apartment.apartment_id %>"
+            >
+                Зберегти
+            </button>
+
+            <div id="update-message"></div>
+        </div>
+    <% } %>
+
+    <a href="/" class="backBtn apartment-back">← Назад до каталогу</a>
+</div>
+
+<%- include('footer') %>
+<script src="/scripts.js"></script>
 </body>
 </html>

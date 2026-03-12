@@ -1,56 +1,78 @@
 <!DOCTYPE html>
 <html lang="uk">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Створити оголошення</title>
     <link rel="stylesheet" href="/style.css" />
-  </head>
-  <body>
-    <%- include('header') %>
+</head>
 
-    <div class="form-container">
-      <h2>Створити оголошення</h2>
+<body>
 
-      <input type="text" id="title" placeholder="Назва" required />
-      <input type="number" id="price" placeholder="Ціна (грн)" required />
-      <input type="number" id="rooms" placeholder="Кількість кімнат" required />
-      <input type="number" id="area" placeholder="Площа (м²)" required />
-      <input type="number" id="floor" placeholder="Поверх" required />
-      <input type="text" id="address" placeholder="Адреса" required />
-      <textarea id="fullText" placeholder="Опис"></textarea>
+<%- include('header') %>
 
-      <button id="submitBtn">Опублікувати</button>
-      <div id="error-message" style="color: red"></div>
+<div class="login-wrapper">
+
+    <div class="form-container create-form">
+
+        <h2>Створити оголошення</h2>
+
+        <div class="form-grid">
+            <input type="text" id="title" placeholder="Назва" required />
+
+            <input type="number" id="price" placeholder="Ціна (грн)" required />
+
+            <input type="number" id="rooms" placeholder="Кількість кімнат" required />
+
+            <input type="number" id="area" placeholder="Площа (м²)" required />
+
+            <input type="number" id="floor" placeholder="Поверх" required />
+
+            <input type="text" id="address" placeholder="Адреса" required />
+        </div>
+
+        <textarea id="fullText" placeholder="Опис квартири"></textarea>
+
+        <button id="submitBtn">Опублікувати</button>
+
+        <div id="error-message"></div>
+        <a href="/" class="backBtn">← Назад до каталогу</a>
+
     </div>
 
-    <script>
-      document
+</div>
+
+<script>
+    document
         .getElementById("submitBtn")
         .addEventListener("click", async () => {
-          const body = {
-            title: document.getElementById("title").value,
-            price: parseFloat(document.getElementById("price").value),
-            rooms: parseInt(document.getElementById("rooms").value),
-            area: parseFloat(document.getElementById("area").value),
-            floor: parseInt(document.getElementById("floor").value),
-            address: document.getElementById("address").value,
-            fullText: document.getElementById("fullText").value,
-          };
 
-          const response = await fetch("/apartment/create", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          });
+            const body = {
+                title: document.getElementById("title").value,
+                price: parseFloat(document.getElementById("price").value),
+                rooms: parseInt(document.getElementById("rooms").value),
+                area: parseFloat(document.getElementById("area").value),
+                floor: parseInt(document.getElementById("floor").value),
+                address: document.getElementById("address").value,
+                fullText: document.getElementById("fullText").value
+            };
 
-          const data = await response.json();
+            const response = await fetch("/apartment/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
 
-          if (response.ok) {
-            window.location.href = `/`;
-          } else {
-            document.getElementById("error-message").textContent = data.error;
-          }
+            const data = await response.json();
+
+            if (response.ok) {
+                window.location.href = "/";
+            } else {
+                document.getElementById("error-message").textContent = data.error;
+            }
         });
-    </script>
-  </body>
+</script>
+
+</body>
 </html>
