@@ -36,6 +36,11 @@ router.get("/login", (req, res) => {
   loginController.getLogin(req, res);
 });
 
+router.post("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
+
 router.get("/login/register", (req, res) => {
   loginController.getRegister(req, res);
 });
