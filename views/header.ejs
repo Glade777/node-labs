@@ -9,42 +9,16 @@
         <% if (locals.currentUser) { %>
 
             <span class="balance">
-        Баланс: <%= currentUser.balance %> грн
-      </span>
+                Баланс: <%= currentUser.balance %> грн
+            </span>
 
             <a href="/user/<%= currentUser.id %>">
                 <button class="userBtn">Account</button>
             </a>
 
-            <header class="site-header">
-
-    <a href="/" class="logo">
-        🏠 ApartmentHub
-    </a>
-
-    <div class="header-right">
-
-        <% if (locals.currentUser) { %>
-
-            <span class="balance">
-        Баланс: <%= currentUser.balance %> грн
-      </span>
-
-            <a href="/user/<%= currentUser.id %>">
-                <button class="userBtn">Account</button>
-            </a>
-
-        <% } else { %>
-
-            <a href="/login">
-                <button class="userBtn">Увійти</button>
-            </a>
-
-        <% } %>
-
-    </div>
-
-</header>
+            <form action="/logout" method="POST" style="display:inline">
+                <button type="submit" class="userBtn">Вийти</button>
+            </form>
 
         <% } else { %>
 
