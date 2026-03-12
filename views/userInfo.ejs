@@ -1,65 +1,100 @@
-<% if (currentUser && currentUser.id === user.userId) { %>
-<h1>Профіль користувача</h1>
-<div class="user-card">
-  <p><strong>Ім'я:</strong> <span id="userName"><%= user.name %></span></p>
-  <p>
-    <strong>Контакти:</strong>
-    <span id="userContacts"><%= user.contacts %></span>
-  </p>
-  <p><strong>Баланс:</strong> <%= user.balance %> грн</p>
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <title>Профіль користувача</title>
+    <link rel="stylesheet" href="/style.css" />
+</head>
 
-  <button class="editBtn" id="editBtn" data-id="<%= user.userId %>">
-    Edit
-  </button>
-  <button id="saveBtn" style="display: none" data-id="<%= user.userId %>">
-    Save
-  </button>
-
-</div>
-  <% } %>
 <body>
-  <script>
+
+<%- include('header') %>
+
+<div class="page-wrapper">
+
+    <% if (currentUser && Number(currentUser.id) === Number(user.user_id)) { %>
+
+        <h1>Профіль користувача</h1>
+
+        <div class="user-card">
+
+            <p>
+                <strong>Ім'я:</strong>
+                <span id="userName"><%= user.name %></span>
+            </p>
+
+            <p>
+                <strong>Контакти:</strong>
+                <span id="userContacts"><%= user.contacts %></span>
+            </p>
+
+            <p>
+                <strong>Баланс:</strong>
+                <span class="balance-value"><%= user.balance %> грн</span>
+            </p>
+
+            <div class="user-actions">
+                <button class="editBtn" id="editBtn" data-id="<%= user.user_id %>">
+                    Редагувати
+                </button>
+
+                <button id="saveBtn" style="display:none" data-id="<%= user.user_id %>">
+                    Зберегти
+                </button>
+            </div>
+
+        </div>
+
+    <% } %>
+
+        <a href="/" class="backBtn">← Назад до каталогу</a>
+</div>
+
+<%- include('footer') %>
+
+<script>
     document.addEventListener("DOMContentLoaded", () => {
-      const editBtn = document.getElementById("editBtn");
-      const saveBtn = document.getElementById("saveBtn");
+        const editBtn = document.getElementById("editBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const nameSpan = document.getElementById("userName");
+        const contactsSpan = document.getElementById("userContacts");
 
-      const nameSpan = document.getElementById("userName");
-      const contactsSpan = document.getElementById("userContacts");
+        if (!editBtn || !saveBtn || !nameSpan || !contactsSpan) return;
 
-      editBtn.addEventListener("click", () => {
-        const nameInput = `<input type="text" id="nameInput" value="${nameSpan.innerText}">`;
-        const contactsInput = `<input type="text" id="contactsInput" value="${contactsSpan.innerText}">`;
+        editBtn.addEventListener("click", () => {
+            const nameInput = `<input type="text" id="nameInput" value="${nameSpan.innerText}">`;
+            const contactsInput = `<input type="text" id="contactsInput" value="${contactsSpan.innerText}">`;
 
-        nameSpan.innerHTML = nameInput;
-        contactsSpan.innerHTML = contactsInput;
+            nameSpan.innerHTML = nameInput;
+            contactsSpan.innerHTML = contactsInput;
 
-        editBtn.style.display = "none";
-        saveBtn.style.display = "inline-block";
-      });
-
-      saveBtn.addEventListener("click", async () => {
-        const userId = saveBtn.dataset.id;
-        const newName = document.getElementById("nameInput").value;
-        const newContacts = document.getElementById("contactsInput").value;
-
-        const response = await fetch(`/user/${userId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: newName,
-            contacts: newContacts,
-          }),
+            editBtn.style.display = "none";
+            saveBtn.style.display = "inline-block";
         });
 
-        if (response.ok) {
-          document.getElementById("userName").innerText = newName;
-          document.getElementById("userContacts").innerText = newContacts;
-          // Повертаємо кнопки у початковий стан
-          editBtn.style.display = "inline-block";
-          saveBtn.style.display = "none";
-        }
-      });
+        saveBtn.addEventListener("click", async () => {
+            const userId = saveBtn.dataset.id;
+            const newName = document.getElementById("nameInput").value;
+            const newContacts = document.getElementById("contactsInput").value;
+
+            const response = await fetch(`/user/${userId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: newName,
+                    contacts: newContacts
+                })
+            });
+
+            if (response.ok) {
+                nameSpan.innerText = newName;
+                contactsSpan.innerText = newContacts;
+                editBtn.style.display = "inline-block";
+                saveBtn.style.display = "none";
+            }
+        });
     });
-  </script>
+</script>
+
 </body>
-<a href="/">Назад до каталогу</a>
+</html>

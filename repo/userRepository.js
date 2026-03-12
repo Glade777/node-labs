@@ -1,99 +1,73 @@
-const user = require("../models/user");
+const User = require("../models/User");
+const hash = require("../utilits/hashing");
 
-class userRepository {
-  constructor(db) {
-    this.db = db;
-  }
+class UserRepository {
+    async getAll() {
+        return await User.findAll({
+            order: [["user_id", "ASC"]],
+        });
+    }
 
-  async getAll() {
-    const query = `SELECT * FROM users`;
-    const res = await this.db.query(query);
+    async getUserById(id) {
+        return await User.findByPk(Number(id));
+    }
 
-    return res.rows.map((row) => {
-      return new user(row.userId, row.name, row.contacts, row.balance);
-    });
-  }
+    async getUserByName(name) {
+        return await User.findOne({
+            where: { name },
+        });
+    }
 
-  async getUserById(Id) {
-    const query = `SELECT * FROM users WHERE user_id = $1`;
-    const res = await this.db.query(query, [Id]);
+    async createUser(userData) {
+        const createdUser = await User.create({
+            name: userData.name,
+            contacts: userData.contacts ?? "",
+            balance: userData.balance ?? 0,
+            password_hash: userData.password_hash,
+        });
 
-    const row = res.rows[0];
-    return new user(row.user_id, row.name, row.contacts, row.balance);
-  }
+        return createdUser;
+    }
 
-  async createUser(User) {
-    const query = `
-      INSERT INTO users (name, balance, contacts, password_hash)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *;
-    `;
+    async updateUserById(id, newUser) {
+        const user = await User.findByPk(Number(id));
 
-    const values = [User.name, User.balance, User.contacts, User.password];
+        if (!user) {
+            throw new Error("Користувача не знайдено");
+        }
 
-    const res = await this.db.query(query, values);
-    const row = res.rows[0];
-    return new user(
-      row.user_id,
-      row.name,
-      row.balance || 0,
-      row.contacts || [],
-      row.password_hash,
-    );
-  }
+        await user.update({
+            name: newUser.name ?? user.name,
+            contacts: newUser.contacts ?? user.contacts,
+            balance: newUser.balance ?? user.balance,
+        });
 
-  async deleteUser(Id) {
-    const query = `DELETE FROM users WHERE user_id = 1$`;
-    const res = this.db.query(query, [Id]);
-    return res.rowCount > 0;
-  }
+        return user;
+    }
 
-  async loginUser(name, password) {
-    const user = await repo.user.getUserByName(name);
-    console.log(user);
-    if (!user) return null;
+    async deleteUser(id) {
+        const deletedCount = await User.destroy({
+            where: { user_id: Number(id) },
+        });
 
-    const isValid = await hash.comparePassword(password, user.password_hash);
+        return deletedCount > 0;
+    }
 
-    if (!isValid) return null;
+    async loginUser(name, password) {
+        const user = await this.getUserByName(name);
 
-    return user;
-  }
+        if (!user) {
+            return null;
+        }
 
-  async updateUserById(Id, newUser) {
-    const query = `
-      UPDATE users 
-      SET 
-        name = COALESCE($1, name),
-        contacts = COALESCE($2, contacts),
-        balance = COALESCE($3, balance)
-      WHERE user_id = $4
-      RETURNING *;
-    `;
-    const values = [
-      newUser.name || null,
-      newUser.contacts || null,
-      newUser.balance || null,
-      Id,
-    ];
+        const isValid = await hash.comparePassword(password, user.password_hash);
 
-    const res = await this.db.query(query, values);
-    const row = res.rows[0];
+        if (!isValid) {
+            return null;
+        }
 
-    return new user(
-      row.user_id,
-      row.name,
-      row.contacts || "",
-      row.balance || 0,
-    );
-  }
-
-  async getUserByName(name) {
-    const res = await this.db.query("SELECT * FROM users WHERE name = $1", [
-      name,
-    ]);
-    return res.rows[0] || null;
-  }
+        return user;
+    }
 }
 
-module.exports = userRepository;
+module.exports = UserRepository;

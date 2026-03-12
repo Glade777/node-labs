@@ -11,10 +11,10 @@
 
    <% 
   const labels = {
-    rooms: "Кімнат",
-    area: "Площа (м²)",
-    floor: "Поверх",
-    address: "Адреса"
+    rooms: "Кімнат: ",
+    area: "Площа (м²): ",
+    floor: "Поверх: ",
+    address: "Адреса: "
   };
 %>
 <% if (locals.currentUser) { %>
@@ -29,23 +29,29 @@
 
 
     <main class="main-content">
-      <div class="controls">
-        <label for="sortSelect">Сортувати:</label>
-        <select id="sortSelect">
-          <option value="asc">Від дешевих до дорогих</option>
-          <option value="desc">Від дорогих до дешевих</option>
-        </select>
-        <label for="sortRooms">Кільскість кімнат:</label>
-            <input id="sortRooms"></input>
-            <button id="applyFilters">Застосувати</button>
-      </div>
+        <div class="controls">
+            <div class="filter">
+                <label for="sortSelect">Сортувати:</label>
+                <select id="sortSelect">
+                    <option value="asc">Від дешевих до дорогих</option>
+                    <option value="desc">Від дорогих до дешевих</option>
+                </select>
+            </div>
+
+            <div class="filter">
+                <label for="sortRooms">Кількість кімнат:</label>
+                <input id="sortRooms" placeholder="Напр. 2">
+            </div>
+
+            <button id="applyFilters" class="applyBtn">Застосувати</button>
+        </div>
 
       <div id="product-list" >
         <ul>
           <% apartments.forEach((apart) => { %>
             <a href="/apartment/<%=apart.apartmentId%>" class="productClicked" data-id="<%=apart.apartmentId%>"><li class="card">
               <strong><%= apart.title %></strong>
-              <strong class="price">Ціна: <%= apart._price %> грн</strong>
+              <strong class="price">Ціна: <%= apart.price %> грн</strong>
               <p>Опис: <%= apart.description.fullText %></p>
               <ul>
                 <%for(let key in apart.params){

@@ -1,31 +1,54 @@
 const userService = require("../services/userService");
 
-class userController {
-  async createUser(req, res) {
-    const UserData = req.body;
-    const newUser = await userService.createUser(UserData);
-    req.session.newUser = {
-      id: newUser.userId,
-      name: newUser.name,
-      balance: newUser.balance,
-    };
-    res.status(201).json(newUser);
-  }
+class UserController {
+    async createUser(req, res) {
+        try {
+            const userData = req.body;
+            const newUser = await userService.createUser(userData);
 
-  async getUserById(req, res) {
-    const userId = req.params.userId;
-    const parseId = parseInt(userId);
-    const user = await userService.getUserById(parseId);
-    res.render("userInfo", { user: user, currentUser: req.session.newUser });
-  }
+            req.session.newUser = {
+                user_id: newUser.user_id,
+                id: newUser.user_id,
+                name: newUser.name,
+                balance: newUser.balance,
+            };
 
-  async updateUserById(req, res) {
-    const userId = req.params.userId;
-    const parseId = parseInt(userId);
-    const UserData = req.body;
-    const updateUser = await userService.updateUserById(parseId, UserData);
-    res.json(updateUser);
-  }
+            res.status(201).json(newUser);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    async getUserById(req, res) {
+        try {
+            const userId = parseInt(req.params.userId);
+            const user = await userService.getUserById(userId);
+
+            if (!user) {
+                return res.status(404).send("Користувача не знайдено");
+            }
+
+            res.render("userInfo", {
+                user,
+                currentUser: req.session.newUser,
+            });
+        } catch (error) {
+            res.status(500).send("Server Error");
+        }
+    }
+
+    async updateUserById(req, res) {
+        try {
+            const userId = parseInt(req.params.userId);
+            const userData = req.body;
+
+            const updatedUser = await userService.updateUserById(userId, userData);
+
+            res.json(updatedUser);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 
-module.exports = new userController();
+module.exports = new UserController();

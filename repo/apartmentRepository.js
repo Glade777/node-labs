@@ -1,41 +1,36 @@
-const apartment = require("../models/Apartment");
+const {
+    Apartment,
+    ApartmentParams,
+    ApartmentDescription,
+    User
+} = require("../models");
 
-class apartmentRepository {
-  constructor(db) {
-    this.db = db;
-  }
+class ApartmentRepository {
 
-  async getAll() {
-    return this.db.map(
-      (item) =>
-        new apartment(
-          item.apartmentId,
-          item.title,
-          item.price,
-          item.params,
-          item.description,
-          item.ownerId,
-        ),
-    );
-  }
+    async getAll() {
+        const apartments = await Apartment.findAll({
+            include: [
+                { model: ApartmentParams, as: "params" },
+                { model: ApartmentDescription, as: "description" },
+                { model: User, as: "owner", attributes: ["user_id", "name", "contacts"] }
+            ],
+            order: [["apartment_id", "ASC"]]
+        });
 
-  async getById(id) {
-    const targetId = parseInt(id);
-    const item = this.db.find((item) => item.apartmentId === targetId);
-
-    if (!item) {
-      return null;
+        return apartments;
     }
 
-    return new apartment(
-      item.apartment_id,
-      item.title,
-      item.price,
-      item.params,
-      item.description,
-      item.ownerId,
-    );
-  }
+    async getById(id) {
+        const apartment = await Apartment.findByPk(id, {
+            include: [
+                { model: ApartmentParams, as: "params" },
+                { model: ApartmentDescription, as: "description" },
+                { model: User, as: "owner", attributes: ["user_id", "name", "contacts"] }
+            ]
+        });
+
+        return apartment;
+    }
 }
 
-module.exports = apartmentRepository;
+module.exports = ApartmentRepository;

@@ -1,25 +1,39 @@
-class Apartment {
-  constructor(apartmentId, title, price, params, description, ownerId, status) {
-    this.apartmentId = apartmentId;
-    this.title = title;
-    this.price = price;
-    this.params = params;
-    this.description = description;
-    this.ownerId = ownerId;
-    this.status = status;
-  }
+const { DataTypes } = require("sequelize");
+const sequelize = require("../db/db");
 
-  #validatePrice(value) {
-    return value < 0 ? 0 : value;
-  }
-
-  set price(value) {
-    this._price = this.#validatePrice(value);
-  }
-
-  get price() {
-    return this._price;
-  }
-}
+const Apartment = sequelize.define(
+    "Apartment",
+    {
+        apartment_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        title: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        price: {
+            type: DataTypes.DECIMAL,
+            allowNull: false,
+            validate: {
+                min: 0,
+            },
+        },
+        owner_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "available",
+        },
+    },
+    {
+        tableName: "apartments",
+        timestamps: false,
+    }
+);
 
 module.exports = Apartment;
