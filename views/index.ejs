@@ -24,14 +24,23 @@
 
     <main class="main-content">
       <div class="controls">
+        <label for="dataSource">Режим читання:</label>
+        <select id="dataSource">
+          <option value="/file/apartments/sync">Sync</option>
+          <option value="/file/apartments">Callback</option>
+          <option value="/file/apartments/async">Async/Await</option>
+        </select>
+
         <label for="sortSelect">Сортувати:</label>
         <select id="sortSelect">
           <option value="asc">Від дешевих до дорогих</option>
           <option value="desc">Від дорогих до дешевих</option>
         </select>
-        <label for="sortRooms">Кільскість кімнат:</label>
-            <input id="sortRooms"></input>
-            <button id="applyFilters">Застосувати</button>
+
+        <label for="sortRooms">Кількість кімнат:</label>
+        <input id="sortRooms" type="number" min="1" placeholder="Напр. 2" />
+
+        <button id="applyFilters" type="button">Застосувати</button>
       </div>
 
       <div id="product-list" >
